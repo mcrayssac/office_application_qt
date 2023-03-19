@@ -3,3 +3,6 @@
 ./.idea
 ./.idea/*
 Makefile
+moc_predefs.h
+moc_window.o
+window
