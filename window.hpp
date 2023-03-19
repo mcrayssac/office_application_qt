@@ -15,6 +15,7 @@ public:
 
 protected:
     void closeEvent(QCloseEvent *event) override;
+    int defaultFontSize;
 
 private slots:
     void newFile();
@@ -28,6 +29,8 @@ private slots:
     void underline();
     void superscript();
     void subscript();
+    void increaseFontSize();
+    void decreaseFontSize();
 #ifndef QT_NO_SESSIONMANAGER
     void commitData(QSessionManager &);
 #endif
@@ -44,4 +47,6 @@ private:
 
     QPlainTextEdit *textEdit;
     QString curFile;
+
+    int fontSize;
 };

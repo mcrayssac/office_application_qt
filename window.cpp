@@ -5,7 +5,7 @@
 #include <iostream>
 
 MainWindow::MainWindow()
-    : textEdit(new QPlainTextEdit)
+    : textEdit(new QPlainTextEdit), fontSize(14)
 {
     setCentralWidget(textEdit);
 
@@ -16,6 +16,19 @@ MainWindow::MainWindow()
 
     connect(textEdit->document(), &QTextDocument::contentsChanged,
             this, &MainWindow::documentWasModified);
+
+    // Set the font size to 14
+    QFont defaultFont = textEdit->font();
+    defaultFont.setPointSize(fontSize);
+    textEdit->setFont(defaultFont);
+
+    QTextCursor cursor = textEdit->textCursor();
+    QTextCharFormat format;
+    format.setFont(QFont("Arial", fontSize)); // Remplacer "Arial" et 12 par la police souhaitée
+    cursor.setCharFormat(format);
+
+    // Définir le curseur de texte de textEdit
+    textEdit->setTextCursor(cursor);
 
 #ifndef QT_NO_SESSIONMANAGER
     QGuiApplication::setFallbackSessionManagementEnabled(false);
@@ -344,6 +357,63 @@ void MainWindow::subscript()
     textEdit->mergeCurrentCharFormat(format);
 }
 
+void MainWindow::increaseFontSize()
+{
+    QTextCursor cursor = textEdit->textCursor();
+    QTextCharFormat format;
+    QTextCharFormat selectedFormat;
+
+    if (cursor.hasSelection()) {
+        selectedFormat = cursor.charFormat();
+        double newPointSize = selectedFormat.fontPointSize() + 1;
+        format.setFontPointSize(newPointSize);
+        cursor.mergeCharFormat(format);
+    } else {
+        cursor.select(QTextCursor::WordUnderCursor);
+        selectedFormat = cursor.charFormat();
+        cursor.clearSelection();
+    }
+
+    double newPointSize = selectedFormat.fontPointSize() + 1;
+    format.setFontPointSize(newPointSize);
+
+    cursor.mergeCharFormat(format);
+    textEdit->mergeCurrentCharFormat(format);
+}
+
+void MainWindow::decreaseFontSize()
+{
+    QTextCursor cursor = textEdit->textCursor();
+    QTextCharFormat format;
+    QTextCharFormat selectedFormat;
+
+    if (cursor.hasSelection()) {
+        selectedFormat = cursor.charFormat();
+        QTextCursor selectedCursor = cursor;
+        selectedCursor.clearSelection();
+        selectedCursor.movePosition(QTextCursor::NoMove, QTextCursor::MoveAnchor);
+        selectedCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, cursor.selectionEnd() - cursor.selectionStart());
+        selectedFormat = selectedCursor.charFormat();
+    } else {
+        cursor.select(QTextCursor::WordUnderCursor);
+        selectedFormat = cursor.charFormat();
+        cursor.clearSelection();
+    }
+
+    double newPointSize = selectedFormat.fontPointSize() - 1;
+    if (newPointSize < 1) {
+        newPointSize = 1;
+    }
+    format.setFontPointSize(newPointSize);
+
+    cursor.mergeCharFormat(format);
+    textEdit->mergeCurrentCharFormat(format);
+}
+
+
+
+
+
 
 void MainWindow::createActions()
 {
@@ -458,6 +528,20 @@ void MainWindow::createActions()
     connect(subscriptAct, &QAction::triggered, this, &MainWindow::subscript);
     formatMenu->addAction(subscriptAct);
     formatToolBar->addAction(subscriptAct);
+
+    const QIcon increaseFontSizeIcon = QIcon("./images/increaseFontSize.png");
+    QAction *increaseFontSizeAct = new QAction(increaseFontSizeIcon, tr("&IncreaseFontSize"), this);
+    increaseFontSizeAct->setStatusTip(tr("Increase font size"));
+    connect(increaseFontSizeAct, &QAction::triggered, this, &MainWindow::increaseFontSize);
+    formatMenu->addAction(increaseFontSizeAct);
+    formatToolBar->addAction(increaseFontSizeAct);
+
+    const QIcon decreaseFontSizeIcon = QIcon("./images/decreaseFontSize.png");
+    QAction *decreaseFontSizeAct = new QAction(decreaseFontSizeIcon, tr("&DecreaseFontSize"), this);
+    decreaseFontSizeAct->setStatusTip(tr("Decrease font size"));
+    connect(decreaseFontSizeAct, &QAction::triggered, this, &MainWindow::decreaseFontSize);
+    formatMenu->addAction(decreaseFontSizeAct);
+    formatToolBar->addAction(decreaseFontSizeAct);
 
     menuBar()->addSeparator();
 
