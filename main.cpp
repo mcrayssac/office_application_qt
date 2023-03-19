@@ -12,8 +12,8 @@ int main(int argc, char *argv[])
 #endif
 
     QApplication app(argc, argv);
-    QCoreApplication::setOrganizationName("QtProject");
-    QCoreApplication::setApplicationName("Application Example");
+    QCoreApplication::setOrganizationName("IUT Nord Franche Comte - CRAYSSAC Maxime, ABEL Léna");
+    QCoreApplication::setApplicationName("Office Application");
     QCoreApplication::setApplicationVersion(QT_VERSION_STR);
     QCommandLineParser parser;
     parser.setApplicationDescription(QCoreApplication::applicationName());

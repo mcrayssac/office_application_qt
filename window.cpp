@@ -2,6 +2,7 @@
 #include <QtWidgets>
 #include <QPushButton>
 #include <QSessionManager>
+#include <iostream>
 
 MainWindow::MainWindow()
     : textEdit(new QPlainTextEdit)
@@ -209,6 +210,141 @@ bool MainWindow::saveFile(const QString &fileName)
     return true;
 }
 
+void MainWindow::bold()
+{
+    QTextCursor cursor = textEdit->textCursor();
+    QTextCharFormat format;
+    QTextCharFormat selectedFormat;
+
+    if (cursor.hasSelection()) {
+        selectedFormat = cursor.charFormat();
+    } else {
+        cursor.select(QTextCursor::WordUnderCursor);
+        selectedFormat = cursor.charFormat();
+        cursor.clearSelection();
+    }
+
+    if (selectedFormat.fontWeight() == QFont::Bold) {
+        format.setFontWeight(QFont::Normal);
+    } else {
+        format.setFontWeight(QFont::Bold);
+    }
+
+    cursor.mergeCharFormat(format);
+    textEdit->mergeCurrentCharFormat(format);
+}
+
+void MainWindow::italic()
+{
+    QTextCursor cursor = textEdit->textCursor();
+    QTextCharFormat format;
+    QTextCharFormat selectedFormat;
+
+    if (cursor.hasSelection()) {
+        selectedFormat = cursor.charFormat();
+    } else {
+        cursor.select(QTextCursor::WordUnderCursor);
+        selectedFormat = cursor.charFormat();
+        cursor.clearSelection();
+    }
+
+    if (selectedFormat.fontItalic()) {
+        format.setFontItalic(false);
+    } else {
+        format.setFontItalic(true);
+    }
+
+    cursor.mergeCharFormat(format);
+    textEdit->mergeCurrentCharFormat(format);
+}
+
+void MainWindow::underline()
+{
+    QTextCursor cursor = textEdit->textCursor();
+    QTextCharFormat format;
+    QTextCharFormat selectedFormat;
+
+    if (cursor.hasSelection()) {
+        selectedFormat = cursor.charFormat();
+    } else {
+        cursor.select(QTextCursor::WordUnderCursor);
+        selectedFormat = cursor.charFormat();
+        cursor.clearSelection();
+    }
+
+    if (selectedFormat.fontUnderline()) {
+        format.setFontUnderline(false);
+    } else {
+        format.setFontUnderline(true);
+    }
+
+    cursor.mergeCharFormat(format);
+    textEdit->mergeCurrentCharFormat(format);
+}
+
+void MainWindow::superscript()
+{
+    QTextCursor cursor = textEdit->textCursor();
+    QTextCharFormat format;
+    QTextCharFormat selectedFormat;
+
+    if (cursor.hasSelection()) {
+        selectedFormat = cursor.charFormat();
+        QTextCursor selectedCursor = cursor;
+        selectedCursor.clearSelection();
+        selectedCursor.movePosition(QTextCursor::NoMove, QTextCursor::MoveAnchor);
+        selectedCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, cursor.selectionEnd() - cursor.selectionStart());
+        selectedFormat = selectedCursor.charFormat();
+    } else {
+        cursor.select(QTextCursor::WordUnderCursor);
+        selectedFormat = cursor.charFormat();
+        cursor.clearSelection();
+    }
+
+    if (selectedFormat.verticalAlignment() == QTextCharFormat::AlignSuperScript) {
+        format.setVerticalAlignment(QTextCharFormat::AlignNormal);
+        format.setFontPointSize(selectedFormat.fontPointSize());
+    } else {
+        format.setVerticalAlignment(QTextCharFormat::AlignSuperScript);
+        format.setFontPointSize(selectedFormat.fontPointSize() * 0.5);
+    }
+
+    cursor.mergeCharFormat(format);
+    textEdit->mergeCurrentCharFormat(format);
+}
+
+void MainWindow::subscript()
+{
+    QTextCursor cursor = textEdit->textCursor();
+    QTextCharFormat format;
+    QTextCharFormat selectedFormat;
+
+    if (cursor.hasSelection()) {
+        selectedFormat = cursor.charFormat();
+        QTextCursor selectedCursor = cursor;
+        selectedCursor.clearSelection();
+        selectedCursor.movePosition(QTextCursor::NoMove, QTextCursor::MoveAnchor);
+        selectedCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, cursor.selectionEnd() - cursor.selectionStart());
+        selectedFormat = selectedCursor.charFormat();
+    } else {
+        cursor.select(QTextCursor::WordUnderCursor);
+        selectedFormat = cursor.charFormat();
+        cursor.clearSelection();
+    }
+
+    if (selectedFormat.verticalAlignment() == QTextCharFormat::AlignSubScript) {
+        format.setVerticalAlignment(QTextCharFormat::AlignNormal);
+        format.setFontPointSize(selectedFormat.fontPointSize());
+    } else {
+        format.setVerticalAlignment(QTextCharFormat::AlignSubScript);
+        format.setFontPointSize(selectedFormat.fontPointSize() * 0.5);
+    }
+
+    cursor.mergeCharFormat(format);
+    textEdit->mergeCurrentCharFormat(format);
+}
+
+
 void MainWindow::createActions()
 {
 
@@ -279,6 +415,49 @@ void MainWindow::createActions()
     connect(pasteAct, &QAction::triggered, textEdit, &QPlainTextEdit::paste);
     editMenu->addAction(pasteAct);
     editToolBar->addAction(pasteAct);
+
+    menuBar()->addSeparator();
+
+    QMenu *formatMenu = menuBar()->addMenu(tr("&Format"));
+    QToolBar *formatToolBar = addToolBar(tr("Format"));
+
+    const QIcon boldIcon = QIcon("./images/bold.png");
+    QAction *boldAct = new QAction(boldIcon, tr("&Bold"), this);
+    boldAct->setShortcut(QKeySequence::Bold);
+    boldAct->setStatusTip(tr("Make the text bold"));
+    connect(boldAct, &QAction::triggered, this, &MainWindow::bold);
+    formatMenu->addAction(boldAct);
+    formatToolBar->addAction(boldAct);
+
+    const QIcon italicIcon = QIcon("./images/italic.png");
+    QAction *italicAct = new QAction(italicIcon, tr("&Italic"), this);
+    italicAct->setShortcut(QKeySequence::Italic);
+    italicAct->setStatusTip(tr("Make the text italic"));
+    connect(italicAct, &QAction::triggered, this, &MainWindow::italic);
+    formatMenu->addAction(italicAct);
+    formatToolBar->addAction(italicAct);
+
+    const QIcon underlineIcon = QIcon("./images/underline.png");
+    QAction *underlineAct = new QAction(underlineIcon, tr("&Underline"), this);
+    underlineAct->setShortcut(QKeySequence::Underline);
+    underlineAct->setStatusTip(tr("Make the text underline"));
+    connect(underlineAct, &QAction::triggered, this, &MainWindow::underline);
+    formatMenu->addAction(underlineAct);
+    formatToolBar->addAction(underlineAct);
+
+    const QIcon superscriptIcon = QIcon("./images/superscript.png");
+    QAction *superscriptAct = new QAction(superscriptIcon, tr("&Superscript"), this);
+    superscriptAct->setStatusTip(tr("Make the text superscript"));
+    connect(superscriptAct, &QAction::triggered, this, &MainWindow::superscript);
+    formatMenu->addAction(superscriptAct);
+    formatToolBar->addAction(superscriptAct);
+
+    const QIcon subscriptIcon = QIcon("./images/subscript.png");
+    QAction *subscriptAct = new QAction(subscriptIcon, tr("&Subscript"), this);
+    subscriptAct->setStatusTip(tr("Make the text subscript"));
+    connect(subscriptAct, &QAction::triggered, this, &MainWindow::subscript);
+    formatMenu->addAction(subscriptAct);
+    formatToolBar->addAction(subscriptAct);
 
     menuBar()->addSeparator();
 
