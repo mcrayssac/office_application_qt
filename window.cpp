@@ -17,17 +17,14 @@ MainWindow::MainWindow()
     connect(textEdit->document(), &QTextDocument::contentsChanged,
             this, &MainWindow::documentWasModified);
 
-    // Set the font size to 14
     QFont defaultFont = textEdit->font();
     defaultFont.setPointSize(fontSize);
     textEdit->setFont(defaultFont);
 
     QTextCursor cursor = textEdit->textCursor();
     QTextCharFormat format;
-    format.setFont(QFont("Arial", fontSize)); // Remplacer "Arial" et 12 par la police souhaitée
+    format.setFont(QFont("Arial", fontSize));
     cursor.setCharFormat(format);
-
-    // Définir le curseur de texte de textEdit
     textEdit->setTextCursor(cursor);
 
 #ifndef QT_NO_SESSIONMANAGER
@@ -410,6 +407,58 @@ void MainWindow::decreaseFontSize()
     textEdit->mergeCurrentCharFormat(format);
 }
 
+void MainWindow::uppercase()
+{
+    QTextCharFormat format;
+    QTextCharFormat selectedFormat;
+    QString selectedText;
+
+    QTextCursor cursor = textEdit->textCursor();
+    if (cursor.hasSelection()) {
+        selectedFormat = cursor.charFormat();
+        QTextCursor selectedCursor = cursor;
+        selectedCursor.clearSelection();
+        selectedCursor.movePosition(QTextCursor::NoMove, QTextCursor::MoveAnchor);
+        selectedCursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+        selectedFormat = selectedCursor.charFormat();
+        selectedText = cursor.selectedText().toUpper();
+        cursor.insertText(selectedText);
+        cursor.clearSelection();
+    } else {
+        selectedText = cursor.block().text().mid(cursor.positionInBlock()).toUpper();
+        cursor.insertText(selectedText, format);
+        format.clearProperty(QTextFormat::FontCapitalization);
+        format.setFontCapitalization(QFont::AllUppercase);
+        textEdit->mergeCurrentCharFormat(format);
+    }
+}
+
+void MainWindow::lowercase()
+{
+    QTextCharFormat format;
+    QTextCharFormat selectedFormat;
+    QString selectedText;
+
+    QTextCursor cursor = textEdit->textCursor();
+    if (cursor.hasSelection()) {
+        selectedFormat = cursor.charFormat();
+        QTextCursor selectedCursor = cursor;
+        selectedCursor.clearSelection();
+        selectedCursor.movePosition(QTextCursor::NoMove, QTextCursor::MoveAnchor);
+        selectedCursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+        selectedFormat = selectedCursor.charFormat();
+        selectedText = cursor.selectedText().toLower();
+        cursor.insertText(selectedText);
+        cursor.clearSelection();
+    } else {
+        selectedText = cursor.block().text().mid(cursor.positionInBlock()).toLower();
+        cursor.insertText(selectedText, format);
+        format.clearProperty(QTextFormat::FontCapitalization);
+        format.setFontCapitalization(QFont::AllLowercase);
+        textEdit->mergeCurrentCharFormat(format);
+    }
+}
+
 
 
 
@@ -542,6 +591,20 @@ void MainWindow::createActions()
     connect(decreaseFontSizeAct, &QAction::triggered, this, &MainWindow::decreaseFontSize);
     formatMenu->addAction(decreaseFontSizeAct);
     formatToolBar->addAction(decreaseFontSizeAct);
+
+    const QIcon uppercaseIcon = QIcon("./images/uppercase.png");
+    QAction *uppercaseAct = new QAction(uppercaseIcon, tr("Uppercase"), this);
+    uppercaseAct->setStatusTip(tr("Convert selected text to uppercase"));
+    connect(uppercaseAct, &QAction::triggered, this, &MainWindow::uppercase);
+    formatMenu->addAction(uppercaseAct);
+    formatToolBar->addAction(uppercaseAct);
+
+    const QIcon lowercaseIcon = QIcon("./images/lowercase.png");
+    QAction *lowercaseAct = new QAction(lowercaseIcon, tr("Lowercase"), this);
+    lowercaseAct->setStatusTip(tr("Convert selected text to lowercase"));
+    connect(lowercaseAct, &QAction::triggered, this, &MainWindow::lowercase);
+    formatMenu->addAction(lowercaseAct);
+    formatToolBar->addAction(lowercaseAct);
 
     menuBar()->addSeparator();
 

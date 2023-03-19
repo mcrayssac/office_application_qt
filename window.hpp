@@ -31,6 +31,8 @@ private slots:
     void subscript();
     void increaseFontSize();
     void decreaseFontSize();
+    void uppercase();
+    void lowercase();
 #ifndef QT_NO_SESSIONMANAGER
     void commitData(QSessionManager &);
 #endif
