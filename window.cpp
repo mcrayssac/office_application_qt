@@ -5,8 +5,7 @@
 #include <iostream>
 
 MainWindow::MainWindow()
-    : textEdit(new QPlainTextEdit)
-{
+        : textEdit(new QPlainTextEdit) {
     setCentralWidget(textEdit);
 
     createActions();
@@ -16,6 +15,10 @@ MainWindow::MainWindow()
 
     connect(textEdit->document(), &QTextDocument::contentsChanged,
             this, &MainWindow::documentWasModified);
+
+    // Auto save
+    autoSaveTimer = new QTimer(this);
+    connect(autoSaveTimer, &QTimer::timeout, this, &MainWindow::autoSave);
 
 #ifndef QT_NO_SESSIONMANAGER
     QGuiApplication::setFallbackSessionManagementEnabled(false);
@@ -27,8 +30,7 @@ MainWindow::MainWindow()
     setUnifiedTitleAndToolBarOnMac(true);
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
-{
+void MainWindow::closeEvent(QCloseEvent *event) {
     if (maybeSave()) {
         writeSettings();
         event->accept();
@@ -44,8 +46,7 @@ void MainWindow::newFile() {
     }
 }
 
-void MainWindow::open()
-{
+void MainWindow::open() {
     if (maybeSave()) {
         QString fileName = QFileDialog::getOpenFileName(this);
         if (!fileName.isEmpty())
@@ -53,51 +54,70 @@ void MainWindow::open()
     }
 }
 
-bool MainWindow::save()
-{
+bool MainWindow::save() {
     if (curFile.isEmpty()) {
         return saveAs();
     } else {
         return saveFile(curFile);
     }
+    autoSaveTimer->start(30000); // Enable auto-save every 30 seconds
 }
-
-bool MainWindow::saveAs()
-{
+/*
+bool MainWindow::saveAs() {
     QFileDialog dialog(this);
     dialog.setWindowModality(Qt::WindowModal);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     if (dialog.exec() != QDialog::Accepted)
         return false;
     return saveFile(dialog.selectedFiles().first());
+}*/
+
+bool MainWindow::saveAs() {
+    QFileDialog dialog(this, tr("Save As"));
+    dialog.setWindowModality(Qt::WindowModal);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+
+    if (dialog.exec() != QDialog::Accepted) {
+        return false;
+    }
+
+    QString fileName = dialog.selectedFiles().first();
+    bool result = saveFile(fileName);
+
+    if (result) {
+        autoSaveTimer->start(30000); // Enable auto-save every 30 seconds
+    }
+
+    return result;
 }
 
-void MainWindow::about()
-{
-   QMessageBox::about(this, tr("About Application"),
-            tr("The <b>Application</b> example demonstrates how to "
-               "write modern GUI applications using Qt, with a menu bar, "
-               "toolbars, and a status bar."));
+void MainWindow::autoSave() {
+    if (!curFile.isEmpty()) {
+        save();
+    }
 }
 
-void MainWindow::documentWasModified()
-{
+void MainWindow::about() {
+    QMessageBox::about(this, tr("About Application"),
+                       tr("The <b>Application</b> example demonstrates how to "
+                          "write modern GUI applications using Qt, with a menu bar, "
+                          "toolbars, and a status bar."));
+}
+
+void MainWindow::documentWasModified() {
     setWindowModified(textEdit->document()->isModified());
 }
 
-void MainWindow::createStatusBar()
-{
+void MainWindow::createStatusBar() {
     statusBar()->showMessage(tr("Ready"));
 }
 
-void MainWindow::writeSettings()
-{
+void MainWindow::writeSettings() {
     QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
     settings.setValue("geometry", saveGeometry());
 }
 
-void MainWindow::readSettings()
-{
+void MainWindow::readSettings() {
     QSettings settings(QCoreApplication::organizationName(), QCoreApplication::applicationName());
     const QByteArray geometry = settings.value("geometry", QByteArray()).toByteArray();
     if (geometry.isEmpty()) {
@@ -110,33 +130,31 @@ void MainWindow::readSettings()
     }
 }
 
-bool MainWindow::maybeSave()
-{
+bool MainWindow::maybeSave() {
     if (!textEdit->document()->isModified())
         return true;
     const QMessageBox::StandardButton ret
-        = QMessageBox::warning(this, tr("Application"),
-                               tr("The document has been modified.\n"
-                                  "Do you want to save your changes?"),
-                               QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+            = QMessageBox::warning(this, tr("Application"),
+                                   tr("The document has been modified.\n"
+                                      "Do you want to save your changes?"),
+                                   QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     switch (ret) {
-    case QMessageBox::Save:
-        return save();
-    case QMessageBox::Cancel:
-        return false;
-    default:
-        break;
+        case QMessageBox::Save:
+            return save();
+        case QMessageBox::Cancel:
+            return false;
+        default:
+            break;
     }
     return true;
 }
 
-void MainWindow::loadFile(const QString &fileName)
-{
+void MainWindow::loadFile(const QString &fileName) {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Application"),
                              tr("Cannot read file %1:\n%2.")
-                             .arg(QDir::toNativeSeparators(fileName), file.errorString()));
+                                     .arg(QDir::toNativeSeparators(fileName), file.errorString()));
         return;
     }
 
@@ -153,8 +171,7 @@ void MainWindow::loadFile(const QString &fileName)
     statusBar()->showMessage(tr("File loaded"), 2000);
 }
 
-void MainWindow::setCurrentFile(const QString &fileName)
-{
+void MainWindow::setCurrentFile(const QString &fileName) {
     curFile = fileName;
     textEdit->document()->setModified(false);
     setWindowModified(false);
@@ -165,14 +182,13 @@ void MainWindow::setCurrentFile(const QString &fileName)
     setWindowFilePath(shownName);
 }
 
-QString MainWindow::strippedName(const QString &fullFileName)
-{
+QString MainWindow::strippedName(const QString &fullFileName) {
     return QFileInfo(fullFileName).fileName();
 }
 
 #ifndef QT_NO_SESSIONMANAGER
-void MainWindow::commitData(QSessionManager &manager)
-{
+
+void MainWindow::commitData(QSessionManager &manager) {
     if (manager.allowsInteraction()) {
         if (!maybeSave())
             manager.cancel();
@@ -182,6 +198,7 @@ void MainWindow::commitData(QSessionManager &manager)
             save();
     }
 }
+
 #endif
 
 bool MainWindow::saveFile(const QString &fileName)
@@ -191,8 +208,8 @@ bool MainWindow::saveFile(const QString &fileName)
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Application"),
                              tr("Cannot write file %1:\n%2.")
-                             .arg(QDir::toNativeSeparators(fileName),
-                                  file.errorString()));
+                                     .arg(QDir::toNativeSeparators(fileName),
+                                          file.errorString()));
         return false;
     }
 
@@ -210,8 +227,7 @@ bool MainWindow::saveFile(const QString &fileName)
     return true;
 }
 
-void MainWindow::bold()
-{
+void MainWindow::bold() {
     QTextCursor cursor = textEdit->textCursor();
     QTextCharFormat format;
     QTextCharFormat selectedFormat;
@@ -234,8 +250,7 @@ void MainWindow::bold()
     textEdit->mergeCurrentCharFormat(format);
 }
 
-void MainWindow::italic()
-{
+void MainWindow::italic() {
     QTextCursor cursor = textEdit->textCursor();
     QTextCharFormat format;
     QTextCharFormat selectedFormat;
@@ -258,8 +273,7 @@ void MainWindow::italic()
     textEdit->mergeCurrentCharFormat(format);
 }
 
-void MainWindow::underline()
-{
+void MainWindow::underline() {
     QTextCursor cursor = textEdit->textCursor();
     QTextCharFormat format;
     QTextCharFormat selectedFormat;
@@ -282,8 +296,7 @@ void MainWindow::underline()
     textEdit->mergeCurrentCharFormat(format);
 }
 
-void MainWindow::superscript()
-{
+void MainWindow::superscript() {
     QTextCursor cursor = textEdit->textCursor();
     QTextCharFormat format;
     QTextCharFormat selectedFormat;
@@ -293,7 +306,8 @@ void MainWindow::superscript()
         QTextCursor selectedCursor = cursor;
         selectedCursor.clearSelection();
         selectedCursor.movePosition(QTextCursor::NoMove, QTextCursor::MoveAnchor);
-        selectedCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, cursor.selectionEnd() - cursor.selectionStart());
+        selectedCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor,
+                                    cursor.selectionEnd() - cursor.selectionStart());
         selectedFormat = selectedCursor.charFormat();
     } else {
         cursor.select(QTextCursor::WordUnderCursor);
@@ -313,8 +327,7 @@ void MainWindow::superscript()
     textEdit->mergeCurrentCharFormat(format);
 }
 
-void MainWindow::subscript()
-{
+void MainWindow::subscript() {
     QTextCursor cursor = textEdit->textCursor();
     QTextCharFormat format;
     QTextCharFormat selectedFormat;
@@ -324,7 +337,8 @@ void MainWindow::subscript()
         QTextCursor selectedCursor = cursor;
         selectedCursor.clearSelection();
         selectedCursor.movePosition(QTextCursor::NoMove, QTextCursor::MoveAnchor);
-        selectedCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, cursor.selectionEnd() - cursor.selectionStart());
+        selectedCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor,
+                                    cursor.selectionEnd() - cursor.selectionStart());
         selectedFormat = selectedCursor.charFormat();
     } else {
         cursor.select(QTextCursor::WordUnderCursor);
@@ -345,8 +359,7 @@ void MainWindow::subscript()
 }
 
 
-void MainWindow::createActions()
-{
+void MainWindow::createActions() {
 
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
     QToolBar *fileToolBar = addToolBar(tr("File"));

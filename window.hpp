@@ -28,6 +28,7 @@ private slots:
     void underline();
     void superscript();
     void subscript();
+    void autoSave();
 #ifndef QT_NO_SESSIONMANAGER
     void commitData(QSessionManager &);
 #endif
@@ -44,4 +45,7 @@ private:
 
     QPlainTextEdit *textEdit;
     QString curFile;
+
+    // Auto save
+    QTimer *autoSaveTimer;
 };
