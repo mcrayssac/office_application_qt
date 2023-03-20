@@ -15,6 +15,7 @@ public:
 
 protected:
     void closeEvent(QCloseEvent *event) override;
+    int defaultFontSize;
 
 private slots:
     void newFile();
@@ -29,6 +30,10 @@ private slots:
     void superscript();
     void subscript();
     void autoSave();
+    void increaseFontSize();
+    void decreaseFontSize();
+    void uppercase();
+    void lowercase();
 #ifndef QT_NO_SESSIONMANAGER
     void commitData(QSessionManager &);
 #endif
@@ -48,4 +53,6 @@ private:
 
     // Auto save
     QTimer *autoSaveTimer;
+
+    int fontSize;
 };
