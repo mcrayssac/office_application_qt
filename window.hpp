@@ -36,6 +36,9 @@ private slots:
     void uppercase();
     void lowercase();
     void searchAndReplace();
+    void replaceMisspelledWordWithSuggestion();
+    static QStringList getSpellingSuggestions(const QString &word);
+    void checkSpelling();
 #ifndef QT_NO_SESSIONMANAGER
     void commitData(QSessionManager &);
 #endif
@@ -61,6 +64,8 @@ private:
     QLabel *wordCountLabel;
     QLabel *charCountLabel;
     QLabel *lineCountLabel;
+
+    // Spell checker
 
     int fontSize;
 };
