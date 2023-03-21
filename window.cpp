@@ -482,7 +482,6 @@ void MainWindow::lowercase()
 
 void MainWindow::updateCounts() {
     QString text = textEdit->toPlainText();
-
     int wordCount = text.split(QRegularExpression(R"((\s|\n|\r)+)"), Qt::SkipEmptyParts).count();
     int charCount = text.length();
     int lineCount = text.count('\n') + 1;
@@ -490,6 +489,47 @@ void MainWindow::updateCounts() {
     wordCountLabel->setText(tr("Words: %1").arg(wordCount));
     charCountLabel->setText(tr("Characters: %1").arg(charCount));
     lineCountLabel->setText(tr("Lines: %1").arg(lineCount));
+}
+void MainWindow::searchAndReplace() {
+    QDialog dialog(this);
+    dialog.setWindowTitle(tr("Search and Replace"));
+
+    QLabel searchLabel(tr("Search for:"));
+    QLineEdit searchLineEdit;
+    QLabel replaceLabel(tr("Replace with:"));
+    QLineEdit replaceLineEdit;
+    QPushButton okButton(tr("OK"));
+    QPushButton cancelButton(tr("Cancel"));
+
+    QGridLayout layout;
+    layout.addWidget(&searchLabel, 0, 0);
+    layout.addWidget(&searchLineEdit, 0, 1);
+    layout.addWidget(&replaceLabel, 1, 0);
+    layout.addWidget(&replaceLineEdit, 1, 1);
+    layout.addWidget(&okButton, 2, 0);
+    layout.addWidget(&cancelButton, 2, 1);
+    dialog.setLayout(&layout);
+
+    connect(&okButton, &QPushButton::clicked, &dialog, &QDialog::accept);
+
+    if (dialog.exec() == QDialog::Accepted) {
+        QString search = searchLineEdit.text();
+        QString replace = replaceLineEdit.text();
+
+        QTextCursor cursor = textEdit->textCursor();
+        qDebug() << "Search term: " << search;
+        while (!cursor.isNull() && !cursor.atEnd()) {
+            cursor = textEdit->document()->find(search, cursor, QTextDocument::FindCaseSensitively | QTextDocument::FindWholeWords);
+            if (!cursor.isNull()) {
+                QString foundText = cursor.selectedText();
+                qDebug() << "Found search term at position " << cursor.position() << " with text: " << foundText;
+                cursor.insertText(replace);
+            }
+        }
+        if (cursor.atEnd()) {
+            std::cout << "Search term not found" << std::endl;
+        }
+    }
 }
 
 void MainWindow::createActions() {
@@ -633,7 +673,12 @@ void MainWindow::createActions() {
     formatMenu->addAction(lowercaseAct);
     formatToolBar->addAction(lowercaseAct);
 
-    menuBar()->addSeparator();
+    const QIcon searchAndReplaceIcon = QIcon("./images/searchAndReplace.png");
+    QAction *searchAndReplaceAct = new QAction(searchAndReplaceIcon, tr("SearchAndReplace"), this);
+    searchAndReplaceAct->setStatusTip(tr("Search and replace text"));
+    connect(searchAndReplaceAct, &QAction::triggered, this, &MainWindow::searchAndReplace);
+    formatMenu->addAction(searchAndReplaceAct);
+    formatToolBar->addAction(searchAndReplaceAct);
 
 #endif // !QT_NO_CLIPBOARD
 

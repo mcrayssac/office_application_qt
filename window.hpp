@@ -35,6 +35,7 @@ private slots:
     void decreaseFontSize();
     void uppercase();
     void lowercase();
+    void searchAndReplace();
 #ifndef QT_NO_SESSIONMANAGER
     void commitData(QSessionManager &);
 #endif

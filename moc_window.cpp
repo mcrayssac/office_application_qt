@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[20];
-    char stringdata0[198];
+    QByteArrayData data[21];
+    char stringdata0[215];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -50,16 +50,17 @@ QT_MOC_LITERAL(14, 116, 16), // "increaseFontSize"
 QT_MOC_LITERAL(15, 133, 16), // "decreaseFontSize"
 QT_MOC_LITERAL(16, 150, 9), // "uppercase"
 QT_MOC_LITERAL(17, 160, 9), // "lowercase"
-QT_MOC_LITERAL(18, 170, 10), // "commitData"
-QT_MOC_LITERAL(19, 181, 16) // "QSessionManager&"
+QT_MOC_LITERAL(18, 170, 16), // "searchAndReplace"
+QT_MOC_LITERAL(19, 187, 10), // "commitData"
+QT_MOC_LITERAL(20, 198, 16) // "QSessionManager&"
 
     },
     "MainWindow\0newFile\0\0open\0save\0saveAs\0"
     "about\0documentWasModified\0bold\0italic\0"
     "underline\0superscript\0subscript\0"
     "autoSave\0increaseFontSize\0decreaseFontSize\0"
-    "uppercase\0lowercase\0commitData\0"
-    "QSessionManager&"
+    "uppercase\0lowercase\0searchAndReplace\0"
+    "commitData\0QSessionManager&"
 };
 #undef QT_MOC_LITERAL
 
@@ -69,7 +70,7 @@ static const uint qt_meta_data_MainWindow[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-      17,   14, // methods
+      18,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -77,23 +78,24 @@ static const uint qt_meta_data_MainWindow[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   99,    2, 0x08 /* Private */,
-       3,    0,  100,    2, 0x08 /* Private */,
-       4,    0,  101,    2, 0x08 /* Private */,
-       5,    0,  102,    2, 0x08 /* Private */,
-       6,    0,  103,    2, 0x08 /* Private */,
-       7,    0,  104,    2, 0x08 /* Private */,
-       8,    0,  105,    2, 0x08 /* Private */,
-       9,    0,  106,    2, 0x08 /* Private */,
-      10,    0,  107,    2, 0x08 /* Private */,
-      11,    0,  108,    2, 0x08 /* Private */,
-      12,    0,  109,    2, 0x08 /* Private */,
-      13,    0,  110,    2, 0x08 /* Private */,
-      14,    0,  111,    2, 0x08 /* Private */,
-      15,    0,  112,    2, 0x08 /* Private */,
-      16,    0,  113,    2, 0x08 /* Private */,
-      17,    0,  114,    2, 0x08 /* Private */,
-      18,    1,  115,    2, 0x08 /* Private */,
+       1,    0,  104,    2, 0x08 /* Private */,
+       3,    0,  105,    2, 0x08 /* Private */,
+       4,    0,  106,    2, 0x08 /* Private */,
+       5,    0,  107,    2, 0x08 /* Private */,
+       6,    0,  108,    2, 0x08 /* Private */,
+       7,    0,  109,    2, 0x08 /* Private */,
+       8,    0,  110,    2, 0x08 /* Private */,
+       9,    0,  111,    2, 0x08 /* Private */,
+      10,    0,  112,    2, 0x08 /* Private */,
+      11,    0,  113,    2, 0x08 /* Private */,
+      12,    0,  114,    2, 0x08 /* Private */,
+      13,    0,  115,    2, 0x08 /* Private */,
+      14,    0,  116,    2, 0x08 /* Private */,
+      15,    0,  117,    2, 0x08 /* Private */,
+      16,    0,  118,    2, 0x08 /* Private */,
+      17,    0,  119,    2, 0x08 /* Private */,
+      18,    0,  120,    2, 0x08 /* Private */,
+      19,    1,  121,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -112,7 +114,8 @@ static const uint qt_meta_data_MainWindow[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 19,    2,
+    QMetaType::Void,
+    QMetaType::Void, 0x80000000 | 20,    2,
 
        0        // eod
 };
@@ -141,7 +144,8 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 13: _t->decreaseFontSize(); break;
         case 14: _t->uppercase(); break;
         case 15: _t->lowercase(); break;
-        case 16: _t->commitData((*reinterpret_cast< QSessionManager(*)>(_a[1]))); break;
+        case 16: _t->searchAndReplace(); break;
+        case 17: _t->commitData((*reinterpret_cast< QSessionManager(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -176,13 +180,13 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 17)
+        if (_id < 18)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 17;
+        _id -= 18;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 17)
+        if (_id < 18)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 17;
+        _id -= 18;
     }
     return _id;
 }
