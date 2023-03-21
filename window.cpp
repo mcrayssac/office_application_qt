@@ -15,10 +15,23 @@ MainWindow::MainWindow() : textEdit(new QPlainTextEdit), fontSize(14) {
     connect(textEdit->document(), &QTextDocument::contentsChanged,
             this, &MainWindow::documentWasModified);
 
-
     // Auto save
     autoSaveTimer = new QTimer(this);
     connect(autoSaveTimer, &QTimer::timeout, this, &MainWindow::autoSave);
+
+    // Word count
+
+    wordCountLabel = new QLabel(this);
+    charCountLabel = new QLabel(this);
+    lineCountLabel = new QLabel(this);
+
+    statusBar()->addPermanentWidget(wordCountLabel);
+    statusBar()->addPermanentWidget(charCountLabel);
+    statusBar()->addPermanentWidget(lineCountLabel);
+
+    connect(textEdit, &QPlainTextEdit::textChanged, this, &MainWindow::updateCounts);
+
+    updateCounts();
 
     QFont defaultFont = textEdit->font();
     defaultFont.setPointSize(fontSize);
@@ -72,15 +85,7 @@ bool MainWindow::save() {
     }
     autoSaveTimer->start(30000); // Enable auto-save every 30 seconds
 }
-/*
-bool MainWindow::saveAs() {
-    QFileDialog dialog(this);
-    dialog.setWindowModality(Qt::WindowModal);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    if (dialog.exec() != QDialog::Accepted)
-        return false;
-    return saveFile(dialog.selectedFiles().first());
-}*/
+
 
 bool MainWindow::saveAs() {
     QFileDialog dialog(this, tr("Save As"));
@@ -104,6 +109,7 @@ bool MainWindow::saveAs() {
 void MainWindow::autoSave() {
     if (!curFile.isEmpty()) {
         save();
+        autoSaveTimer->start(30000);
     }
 }
 
@@ -179,6 +185,7 @@ void MainWindow::loadFile(const QString &fileName) {
 
     setCurrentFile(fileName);
     statusBar()->showMessage(tr("File loaded"), 2000);
+    autoSave(); // Save the file immediately after opening
 }
 
 void MainWindow::setCurrentFile(const QString &fileName) {
@@ -473,10 +480,17 @@ void MainWindow::lowercase()
     }
 }
 
+void MainWindow::updateCounts() {
+    QString text = textEdit->toPlainText();
 
+    int wordCount = text.split(QRegularExpression(R"((\s|\n|\r)+)"), Qt::SkipEmptyParts).count();
+    int charCount = text.length();
+    int lineCount = text.count('\n') + 1;
 
-
-
+    wordCountLabel->setText(tr("Words: %1").arg(wordCount));
+    charCountLabel->setText(tr("Characters: %1").arg(charCount));
+    lineCountLabel->setText(tr("Lines: %1").arg(lineCount));
+}
 
 void MainWindow::createActions() {
 

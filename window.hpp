@@ -2,6 +2,7 @@
 #include <QPlainTextEdit>
 #include <QCloseEvent>
 #include <QSessionManager>
+#include <QLabel>
 
 
 class MainWindow : public QMainWindow
@@ -46,6 +47,8 @@ private:
     bool maybeSave();
     bool saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
+    void updateCounts();
+
     QString strippedName(const QString &fullFileName);
 
     QPlainTextEdit *textEdit;
@@ -53,6 +56,10 @@ private:
 
     // Auto save
     QTimer *autoSaveTimer;
+    // Word count
+    QLabel *wordCountLabel;
+    QLabel *charCountLabel;
+    QLabel *lineCountLabel;
 
     int fontSize;
 };
