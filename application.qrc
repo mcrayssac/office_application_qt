@@ -6,5 +6,16 @@
     <file>images/open.png</file>
     <file>images/paste.png</file>
     <file>images/save.png</file>
+    <file>images/spelling.png</file>
+    <file>images/bold.png</file>
+    <file>images/italic.png</file>
+    <file>images/underline.png</file>
+    <file>images/decreaseFontSize.png</file>
+    <file>images/increaseFontSize.png</file>
+    <file>images/lowercase.png</file>
+    <file>images/uppercase.png</file>
+    <file>images/searchAndReplace.png</file>
+    <file>images/subscript.png</file>
+    <file>images/superscript.png</file>
 </qresource>
 </RCC>
