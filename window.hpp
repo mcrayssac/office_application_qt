@@ -29,6 +29,7 @@ private slots:
     void underline();
     void superscript();
     void subscript();
+    void autoSave();
     void increaseFontSize();
     void decreaseFontSize();
     void uppercase();
@@ -50,6 +51,9 @@ private:
 
     QPlainTextEdit *textEdit;
     QString curFile;
+
+    // Auto save
+    QTimer *autoSaveTimer;
 
     int fontSize;
 };

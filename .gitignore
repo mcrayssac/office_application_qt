@@ -5,4 +5,6 @@
 Makefile
 moc_predefs.h
 moc_window.o
+main.o
+window.o
 window
