@@ -29,6 +29,7 @@ For Ubuntu :
 ```
 $ sudo apt install autoconf automake autopoint libtool
 $ sudo apt-get install libhunspell-dev
+$ sudo apt install hunspell
 ```
 
 Once installed, open the **window.cpp** file. You will find at line 7-8 this code.
