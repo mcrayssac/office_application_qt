@@ -588,6 +588,15 @@ void MainWindow::replaceMisspelledWordWithSuggestion() {
     }
 }
 
+void MainWindow::undo()
+{
+    textEdit->undo();
+}
+
+void MainWindow::redo()
+{
+    textEdit->redo();
+}
 
 void MainWindow::createActions() {
 
@@ -664,9 +673,32 @@ void MainWindow::createActions() {
 
     menuBar()->addSeparator();
 
+    // UNDO AND REDO
+    const QIcon undoIcon = QIcon("./images/undo.jpg");
+    QAction *undoAction = new QAction(undoIcon, tr("&Undo"), this);
+    undoAction->setShortcut(QKeySequence::Undo);
+    undoAction->setStatusTip(tr("Undo the last editing action"));
+    connect(undoAction, &QAction::triggered, this, &MainWindow::undo);
+
+    const QIcon redoIcon = QIcon("./images/redo.png");
+    QAction *redoAction = new QAction(redoIcon, tr("&Redo"), this);
+    redoAction->setShortcut(QKeySequence::Redo);
+    redoAction->setStatusTip(tr("Redo the last editing action"));
+    connect(redoAction, &QAction::triggered, this, &MainWindow::redo);
+
+    // Add undo and redo actions to the Edit menu
+    editMenu->addAction(undoAction);
+    editMenu->addAction(redoAction);
+
+    // Add undo and redo actions to the toolbar, if you have one
+    QToolBar *toolBar = addToolBar(tr("Edit"));
+    toolBar->addAction(undoAction);
+    toolBar->addAction(redoAction);
+
     QMenu *formatMenu = menuBar()->addMenu(tr("&Format"));
     QToolBar *formatToolBar = addToolBar(tr("Format"));
 
+    // BOLD
     const QIcon boldIcon = QIcon("./images/bold.png");
     QAction *boldAct = new QAction(boldIcon, tr("&Bold"), this);
     boldAct->setShortcut(QKeySequence::Bold);
@@ -675,6 +707,7 @@ void MainWindow::createActions() {
     formatMenu->addAction(boldAct);
     formatToolBar->addAction(boldAct);
 
+    // ITALIC
     const QIcon italicIcon = QIcon("./images/italic.png");
     QAction *italicAct = new QAction(italicIcon, tr("&Italic"), this);
     italicAct->setShortcut(QKeySequence::Italic);
@@ -683,6 +716,7 @@ void MainWindow::createActions() {
     formatMenu->addAction(italicAct);
     formatToolBar->addAction(italicAct);
 
+    // UNDERLINE
     const QIcon underlineIcon = QIcon("./images/underline.png");
     QAction *underlineAct = new QAction(underlineIcon, tr("&Underline"), this);
     underlineAct->setShortcut(QKeySequence::Underline);
@@ -691,6 +725,7 @@ void MainWindow::createActions() {
     formatMenu->addAction(underlineAct);
     formatToolBar->addAction(underlineAct);
 
+    // SUPERSCRIPT AND SUBSCRIPT
     const QIcon superscriptIcon = QIcon("./images/superscript.png");
     QAction *superscriptAct = new QAction(superscriptIcon, tr("&Superscript"), this);
     superscriptAct->setStatusTip(tr("Make the text superscript"));
@@ -705,6 +740,7 @@ void MainWindow::createActions() {
     formatMenu->addAction(subscriptAct);
     formatToolBar->addAction(subscriptAct);
 
+    // INCREASE AND DECREASE FONT SIZE
     const QIcon increaseFontSizeIcon = QIcon("./images/increaseFontSize.png");
     QAction *increaseFontSizeAct = new QAction(increaseFontSizeIcon, tr("&IncreaseFontSize"), this);
     increaseFontSizeAct->setStatusTip(tr("Increase font size"));
@@ -719,6 +755,7 @@ void MainWindow::createActions() {
     formatMenu->addAction(decreaseFontSizeAct);
     formatToolBar->addAction(decreaseFontSizeAct);
 
+    // UPPERCASE
     const QIcon uppercaseIcon = QIcon("./images/uppercase.png");
     QAction *uppercaseAct = new QAction(uppercaseIcon, tr("Uppercase"), this);
     uppercaseAct->setStatusTip(tr("Convert selected text to uppercase"));
@@ -726,6 +763,7 @@ void MainWindow::createActions() {
     formatMenu->addAction(uppercaseAct);
     formatToolBar->addAction(uppercaseAct);
 
+    // LOWERCASE
     const QIcon lowercaseIcon = QIcon("./images/lowercase.png");
     QAction *lowercaseAct = new QAction(lowercaseIcon, tr("Lowercase"), this);
     lowercaseAct->setStatusTip(tr("Convert selected text to lowercase"));
@@ -738,7 +776,7 @@ void MainWindow::createActions() {
 
     // SEARCH AND REPLACE
     const QIcon searchAndReplaceIcon = QIcon("./images/searchAndReplace.png");
-    QAction *searchAndReplaceAct = new QAction(searchAndReplaceIcon, tr("SearchAndReplace"), this);
+    QAction *searchAndReplaceAct = new QAction(searchAndReplaceIcon, tr("Search and Replace"), this);
     searchAndReplaceAct->setStatusTip(tr("Search and replace text"));
     connect(searchAndReplaceAct, &QAction::triggered, this, &MainWindow::searchAndReplace);
     editMenu->addAction(searchAndReplaceAct);
@@ -750,6 +788,7 @@ void MainWindow::createActions() {
     const QIcon spellingIcon =  QIcon(":/images/spelling.png");
     QAction *checkSpellingAction = new QAction(spellingIcon, tr("Check Spelling"), this);
     checkSpellingAction->setShortcut(QKeySequence(tr("Ctrl+Shift+S")));
+    checkSpellingAction->setStatusTip(tr("Check spelling"));
     connect(checkSpellingAction, &QAction::triggered, this, &MainWindow::checkSpelling);
     // Add the action to a menu
     editMenu->addAction(checkSpellingAction);

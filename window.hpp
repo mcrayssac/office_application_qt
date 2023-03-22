@@ -13,6 +13,8 @@ public:
     MainWindow();
 
     void loadFile(const QString &fileName);
+    void undo();
+    void redo();
 
 protected:
     void closeEvent(QCloseEvent *event) override;
