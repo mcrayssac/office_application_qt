@@ -35,6 +35,7 @@ private slots:
     void uppercase();
     void lowercase();
     void searchAndReplace();
+    void searchReplaceFunction(const QString &search, const QString &replace, bool findWholeWords);
 #ifndef QT_NO_SESSIONMANAGER
     void commitData(QSessionManager &);
 #endif

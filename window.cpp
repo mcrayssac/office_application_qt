@@ -473,6 +473,30 @@ void MainWindow::lowercase()
     }
 }
 
+void MainWindow::searchReplaceFunction(const QString &search, const QString &replace, bool findWholeWords) {
+    QTextCursor cursor = textEdit->textCursor();
+    cursor.beginEditBlock();
+    QRegularExpression regex;
+    if (findWholeWords) {
+        regex.setPattern("\\b" + QRegularExpression::escape(search) + "\\b");
+    } else {
+        regex.setPattern(QRegularExpression::escape(search));
+    }
+    cursor.movePosition(QTextCursor::Start);
+    while (!cursor.isNull() && !cursor.atEnd()) {
+        QRegularExpressionMatch match = regex.match(textEdit->toPlainText(), cursor.position());
+        if (match.hasMatch()) {
+            cursor.setPosition(match.capturedStart());
+            cursor.setPosition(match.capturedEnd(), QTextCursor::KeepAnchor);
+            cursor.insertText(replace);
+        } else {
+            break;
+        }
+    }
+    cursor.endEditBlock();
+}
+
+
 void MainWindow::searchAndReplace() {
     QDialog dialog(this);
     dialog.setWindowTitle(tr("Search and Replace"));
@@ -498,20 +522,14 @@ void MainWindow::searchAndReplace() {
     if (dialog.exec() == QDialog::Accepted) {
         QString search = searchLineEdit.text();
         QString replace = replaceLineEdit.text();
-
-        QTextCursor cursor = textEdit->textCursor();
-        qDebug() << "Search term: " << search;
-        while (!cursor.isNull() && !cursor.atEnd()) {
-            cursor = textEdit->document()->find(search, cursor, QTextDocument::FindCaseSensitively | QTextDocument::FindWholeWords);
-            if (!cursor.isNull()) {
-                QString foundText = cursor.selectedText();
-                qDebug() << "Found search term at position " << cursor.position() << " with text: " << foundText;
-                cursor.insertText(replace);
-            }
+        if (textEdit->toPlainText().isEmpty()) {
+            qDebug() << "textEdit is empty";
+        } else {
+            qDebug() << "textEdit contains text" << textEdit->toPlainText() ;
         }
-        if (cursor.atEnd()) {
-            std::cout << "Search term not found" << std::endl;
-        }
+        /* TODO: findWholeWords with button (to false for letters) */
+        bool findWholeWords = true;
+        searchReplaceFunction(search, replace, findWholeWords);
     }
 }
 
