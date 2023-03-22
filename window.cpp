@@ -491,7 +491,7 @@ void MainWindow::lowercase()
 
 void MainWindow::updateCounts() {
     QString text = textEdit->toPlainText();
-    int wordCount = text.split(QRegularExpression(R"((\s|\n|\r)+)"), Qt::SkipEmptyParts).count();
+    int wordCount = text.split(QRegularExpression(R"((\s|\n|\r)+)"), QString::SkipEmptyParts).count();
     int charCount = text.length();
     int lineCount = text.count('\n') + 1;
 
@@ -499,6 +499,30 @@ void MainWindow::updateCounts() {
     charCountLabel->setText(tr("Characters: %1").arg(charCount));
     lineCountLabel->setText(tr("Lines: %1").arg(lineCount));
 }
+
+void MainWindow::searchReplaceFunction(const QString &search, const QString &replace, bool findWholeWords) {
+    QTextCursor cursor = textEdit->textCursor();
+    cursor.beginEditBlock();
+    QRegularExpression regex;
+    if (findWholeWords) {
+        regex.setPattern("\\b" + QRegularExpression::escape(search) + "\\b");
+    } else {
+        regex.setPattern(QRegularExpression::escape(search));
+    }
+    cursor.movePosition(QTextCursor::Start);
+    while (!cursor.isNull() && !cursor.atEnd()) {
+        QRegularExpressionMatch match = regex.match(textEdit->toPlainText(), cursor.position());
+        if (match.hasMatch()) {
+            cursor.setPosition(match.capturedStart());
+            cursor.setPosition(match.capturedEnd(), QTextCursor::KeepAnchor);
+            cursor.insertText(replace);
+        } else {
+            break;
+        }
+    }
+    cursor.endEditBlock();
+}
+
 void MainWindow::searchAndReplace() {
     QDialog dialog(this);
     dialog.setWindowTitle(tr("Search and Replace"));
@@ -509,6 +533,8 @@ void MainWindow::searchAndReplace() {
     QLineEdit replaceLineEdit;
     QPushButton okButton(tr("OK"));
     QPushButton cancelButton(tr("Cancel"));
+    QPushButton toggleModeButton(tr("Toggle Mode: Word"));
+    bool findWholeWords = true;
 
     QGridLayout layout;
     layout.addWidget(&searchLabel, 0, 0);
@@ -517,29 +543,22 @@ void MainWindow::searchAndReplace() {
     layout.addWidget(&replaceLineEdit, 1, 1);
     layout.addWidget(&okButton, 2, 0);
     layout.addWidget(&cancelButton, 2, 1);
+    layout.addWidget(&toggleModeButton, 3, 0, 1, 2);
     dialog.setLayout(&layout);
 
     connect(&okButton, &QPushButton::clicked, &dialog, &QDialog::accept);
+    connect(&toggleModeButton, &QPushButton::clicked, [&]() {
+        findWholeWords = !findWholeWords;
+        toggleModeButton.setText(findWholeWords ? tr("Toggle Mode: Word") : tr("Toggle Mode: Letter"));
+    });
 
     if (dialog.exec() == QDialog::Accepted) {
         QString search = searchLineEdit.text();
         QString replace = replaceLineEdit.text();
-
-        QTextCursor cursor = textEdit->textCursor();
-        qDebug() << "Search term: " << search;
-        while (!cursor.isNull() && !cursor.atEnd()) {
-            cursor = textEdit->document()->find(search, cursor, QTextDocument::FindCaseSensitively | QTextDocument::FindWholeWords);
-            if (!cursor.isNull()) {
-                QString foundText = cursor.selectedText();
-                qDebug() << "Found search term at position " << cursor.position() << " with text: " << foundText;
-                cursor.insertText(replace);
-            }
-        }
-        if (cursor.atEnd()) {
-            std::cout << "Search term not found" << std::endl;
-        }
+        searchReplaceFunction(search, replace, findWholeWords);
     }
 }
+
 QStringList MainWindow::getSpellingSuggestions(const QString &word) {
     QStringList suggestions;
 
@@ -843,7 +862,7 @@ void MainWindow::createActions() {
 
     // SEARCH AND REPLACE
     const QIcon searchAndReplaceIcon = QIcon("./images/searchAndReplace.png");
-    QAction *searchAndReplaceAct = new QAction(searchAndReplaceIcon, tr("Search and Replace"), this);
+    QAction *searchAndReplaceAct = new QAction(searchAndReplaceIcon, tr("SearchAndReplace"), this);
     searchAndReplaceAct->setStatusTip(tr("Search and replace text"));
     connect(searchAndReplaceAct, &QAction::triggered, this, &MainWindow::searchAndReplace);
     editMenu->addAction(searchAndReplaceAct);

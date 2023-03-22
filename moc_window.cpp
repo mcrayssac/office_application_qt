@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[28];
-    char stringdata0[325];
+    QByteArrayData data[32];
+    char stringdata0[377];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -50,26 +50,32 @@ QT_MOC_LITERAL(14, 116, 16), // "increaseFontSize"
 QT_MOC_LITERAL(15, 133, 16), // "decreaseFontSize"
 QT_MOC_LITERAL(16, 150, 9), // "uppercase"
 QT_MOC_LITERAL(17, 160, 9), // "lowercase"
-QT_MOC_LITERAL(18, 170, 16), // "searchAndReplace"
-QT_MOC_LITERAL(19, 187, 35), // "replaceMisspelledWordWithSugg..."
-QT_MOC_LITERAL(20, 223, 22), // "getSpellingSuggestions"
-QT_MOC_LITERAL(21, 246, 4), // "word"
-QT_MOC_LITERAL(22, 251, 13), // "checkSpelling"
-QT_MOC_LITERAL(23, 265, 11), // "changeTheme"
-QT_MOC_LITERAL(24, 277, 5), // "index"
-QT_MOC_LITERAL(25, 283, 13), // "showThemeMenu"
-QT_MOC_LITERAL(26, 297, 10), // "commitData"
-QT_MOC_LITERAL(27, 308, 16) // "QSessionManager&"
+QT_MOC_LITERAL(18, 170, 35), // "replaceMisspelledWordWithSugg..."
+QT_MOC_LITERAL(19, 206, 22), // "getSpellingSuggestions"
+QT_MOC_LITERAL(20, 229, 4), // "word"
+QT_MOC_LITERAL(21, 234, 13), // "checkSpelling"
+QT_MOC_LITERAL(22, 248, 11), // "changeTheme"
+QT_MOC_LITERAL(23, 260, 5), // "index"
+QT_MOC_LITERAL(24, 266, 13), // "showThemeMenu"
+QT_MOC_LITERAL(25, 280, 21), // "searchReplaceFunction"
+QT_MOC_LITERAL(26, 302, 6), // "search"
+QT_MOC_LITERAL(27, 309, 7), // "replace"
+QT_MOC_LITERAL(28, 317, 14), // "findWholeWords"
+QT_MOC_LITERAL(29, 332, 16), // "searchAndReplace"
+QT_MOC_LITERAL(30, 349, 10), // "commitData"
+QT_MOC_LITERAL(31, 360, 16) // "QSessionManager&"
 
     },
     "MainWindow\0newFile\0\0open\0save\0saveAs\0"
     "about\0documentWasModified\0bold\0italic\0"
     "underline\0superscript\0subscript\0"
     "autoSave\0increaseFontSize\0decreaseFontSize\0"
-    "uppercase\0lowercase\0searchAndReplace\0"
+    "uppercase\0lowercase\0"
     "replaceMisspelledWordWithSuggestion\0"
     "getSpellingSuggestions\0word\0checkSpelling\0"
     "changeTheme\0index\0showThemeMenu\0"
+    "searchReplaceFunction\0search\0replace\0"
+    "findWholeWords\0searchAndReplace\0"
     "commitData\0QSessionManager&"
 };
 #undef QT_MOC_LITERAL
@@ -80,7 +86,7 @@ static const uint qt_meta_data_MainWindow[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-      23,   14, // methods
+      24,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -88,29 +94,30 @@ static const uint qt_meta_data_MainWindow[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,  129,    2, 0x08 /* Private */,
-       3,    0,  130,    2, 0x08 /* Private */,
-       4,    0,  131,    2, 0x08 /* Private */,
-       5,    0,  132,    2, 0x08 /* Private */,
-       6,    0,  133,    2, 0x08 /* Private */,
-       7,    0,  134,    2, 0x08 /* Private */,
-       8,    0,  135,    2, 0x08 /* Private */,
-       9,    0,  136,    2, 0x08 /* Private */,
-      10,    0,  137,    2, 0x08 /* Private */,
-      11,    0,  138,    2, 0x08 /* Private */,
-      12,    0,  139,    2, 0x08 /* Private */,
-      13,    0,  140,    2, 0x08 /* Private */,
-      14,    0,  141,    2, 0x08 /* Private */,
-      15,    0,  142,    2, 0x08 /* Private */,
-      16,    0,  143,    2, 0x08 /* Private */,
-      17,    0,  144,    2, 0x08 /* Private */,
-      18,    0,  145,    2, 0x08 /* Private */,
-      19,    0,  146,    2, 0x08 /* Private */,
-      20,    1,  147,    2, 0x08 /* Private */,
-      22,    0,  150,    2, 0x08 /* Private */,
-      23,    1,  151,    2, 0x08 /* Private */,
-      25,    0,  154,    2, 0x08 /* Private */,
-      26,    1,  155,    2, 0x08 /* Private */,
+       1,    0,  134,    2, 0x08 /* Private */,
+       3,    0,  135,    2, 0x08 /* Private */,
+       4,    0,  136,    2, 0x08 /* Private */,
+       5,    0,  137,    2, 0x08 /* Private */,
+       6,    0,  138,    2, 0x08 /* Private */,
+       7,    0,  139,    2, 0x08 /* Private */,
+       8,    0,  140,    2, 0x08 /* Private */,
+       9,    0,  141,    2, 0x08 /* Private */,
+      10,    0,  142,    2, 0x08 /* Private */,
+      11,    0,  143,    2, 0x08 /* Private */,
+      12,    0,  144,    2, 0x08 /* Private */,
+      13,    0,  145,    2, 0x08 /* Private */,
+      14,    0,  146,    2, 0x08 /* Private */,
+      15,    0,  147,    2, 0x08 /* Private */,
+      16,    0,  148,    2, 0x08 /* Private */,
+      17,    0,  149,    2, 0x08 /* Private */,
+      18,    0,  150,    2, 0x08 /* Private */,
+      19,    1,  151,    2, 0x08 /* Private */,
+      21,    0,  154,    2, 0x08 /* Private */,
+      22,    1,  155,    2, 0x08 /* Private */,
+      24,    0,  158,    2, 0x08 /* Private */,
+      25,    3,  159,    2, 0x08 /* Private */,
+      29,    0,  166,    2, 0x08 /* Private */,
+      30,    1,  167,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -130,12 +137,13 @@ static const uint qt_meta_data_MainWindow[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
+    QMetaType::QStringList, QMetaType::QString,   20,
     QMetaType::Void,
-    QMetaType::QStringList, QMetaType::QString,   21,
+    QMetaType::Void, QMetaType::Int,   23,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Int,   24,
+    QMetaType::Void, QMetaType::QString, QMetaType::QString, QMetaType::Bool,   26,   27,   28,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 27,    2,
+    QMetaType::Void, 0x80000000 | 31,    2,
 
        0        // eod
 };
@@ -164,14 +172,15 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 13: _t->decreaseFontSize(); break;
         case 14: _t->uppercase(); break;
         case 15: _t->lowercase(); break;
-        case 16: _t->searchAndReplace(); break;
-        case 17: _t->replaceMisspelledWordWithSuggestion(); break;
-        case 18: { QStringList _r = _t->getSpellingSuggestions((*reinterpret_cast< const QString(*)>(_a[1])));
+        case 16: _t->replaceMisspelledWordWithSuggestion(); break;
+        case 17: { QStringList _r = _t->getSpellingSuggestions((*reinterpret_cast< const QString(*)>(_a[1])));
             if (_a[0]) *reinterpret_cast< QStringList*>(_a[0]) = std::move(_r); }  break;
-        case 19: _t->checkSpelling(); break;
-        case 20: _t->changeTheme((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 21: _t->showThemeMenu(); break;
-        case 22: _t->commitData((*reinterpret_cast< QSessionManager(*)>(_a[1]))); break;
+        case 18: _t->checkSpelling(); break;
+        case 19: _t->changeTheme((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 20: _t->showThemeMenu(); break;
+        case 21: _t->searchReplaceFunction((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< bool(*)>(_a[3]))); break;
+        case 22: _t->searchAndReplace(); break;
+        case 23: _t->commitData((*reinterpret_cast< QSessionManager(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -206,13 +215,13 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 23)
+        if (_id < 24)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 23;
+        _id -= 24;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 23)
+        if (_id < 24)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 23;
+        _id -= 24;
     }
     return _id;
 }
