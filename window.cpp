@@ -3,6 +3,8 @@
 #include <QPushButton>
 #include <QSessionManager>
 #include <iostream>
+#include <QComboBox>
+#include <QToolBar>
 #include "hunspell/hunspell.hxx"
 // Load dictionary for spelling, to be sure where it is located type hunspell -D
 Hunspell spellChecker("/usr/share/hunspell/en_US.aff", "/usr/share/hunspell/en_US.dic");
@@ -602,6 +604,40 @@ void MainWindow::redo()
     textEdit->redo();
 }
 
+void MainWindow::changeTheme(int index) {
+    QPalette palette;
+    QColor textColor, backgroundColor, windowColor;
+
+    if (index == 0) { // Light Theme
+        textColor = QColor(0, 0, 0); // Black
+        backgroundColor = QColor(255, 255, 255); // White
+        windowColor = QColor(240, 240, 240); // Light gray
+    } else if (index == 1) { // Dark Theme
+        textColor = QColor(220, 220, 220); // Light gray
+        backgroundColor = QColor(43, 43, 43); // Dark gray
+        windowColor = QColor(53, 53, 53); // Darker gray
+    }
+
+    palette.setColor(QPalette::Text, textColor);
+    palette.setColor(QPalette::Base, backgroundColor);
+    palette.setColor(QPalette::Window, windowColor);
+
+    // Apply the palette to the text editor and the main window
+    textEdit->setPalette(palette);
+    setPalette(palette);
+}
+
+void MainWindow::showThemeMenu() {
+    QMenu themeMenu;
+    QAction *lightTheme = themeMenu.addAction("Light Theme");
+    QAction *darkTheme = themeMenu.addAction("Dark Theme");
+
+    connect(lightTheme, &QAction::triggered, [this]() { changeTheme(0); });
+    connect(darkTheme, &QAction::triggered, [this]() { changeTheme(1); });
+
+    themeMenu.exec(QCursor::pos());
+}
+
 void MainWindow::createActions() {
 
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
@@ -634,6 +670,32 @@ void MainWindow::createActions() {
     QAction *saveAsAct = fileMenu->addAction(saveAsIcon, tr("Save &As..."), this, &MainWindow::saveAs);
     saveAsAct->setShortcuts(QKeySequence::SaveAs);
     saveAsAct->setStatusTip(tr("Save the document under a new name"));
+
+    fileMenu->addSeparator();
+
+    // Create the theme actions
+    QAction *lightThemeAction = new QAction(tr("Light Theme"), this);
+    lightThemeAction->setCheckable(true);
+    QAction *darkThemeAction = new QAction(tr("Dark Theme"), this);
+    darkThemeAction->setCheckable(true);
+
+    // Create the action group
+    themeActionGroup = new QActionGroup(this);
+    themeActionGroup->addAction(lightThemeAction);
+    themeActionGroup->addAction(darkThemeAction);
+    themeActionGroup->setExclusive(true);
+
+    // Set the default checked action
+    lightThemeAction->setChecked(true);
+
+    // Connect the triggered signal to change the theme
+    connect(lightThemeAction, &QAction::triggered, [this]() { changeTheme(0); });
+    connect(darkThemeAction, &QAction::triggered, [this]() { changeTheme(1); });
+
+    // Add theme actions to the File menu
+
+    fileMenu->addAction(lightThemeAction);
+    fileMenu->addAction(darkThemeAction);
 
     fileMenu->addSeparator();
 
@@ -693,6 +755,7 @@ void MainWindow::createActions() {
     // Add undo and redo actions to the Edit menu
     editMenu->addAction(undoAction);
     editMenu->addAction(redoAction);
+
 
     // Add undo and redo actions to the toolbar, if you have one
     QToolBar *toolBar = addToolBar(tr("Edit"));

@@ -3,6 +3,8 @@
 #include <QCloseEvent>
 #include <QSessionManager>
 #include <QLabel>
+#include <QActionGroup>
+
 
 
 class MainWindow : public QMainWindow
@@ -41,6 +43,8 @@ private slots:
     void replaceMisspelledWordWithSuggestion();
     static QStringList getSpellingSuggestions(const QString &word);
     void checkSpelling();
+    void changeTheme(int index);
+    void showThemeMenu();
 #ifndef QT_NO_SESSIONMANAGER
     void commitData(QSessionManager &);
 #endif
@@ -55,6 +59,9 @@ private:
     void setCurrentFile(const QString &fileName);
     void updateCounts();
 
+    QActionGroup *themeActionGroup;
+    QMenu *fileMenu;
+
     QString strippedName(const QString &fullFileName);
 
     QPlainTextEdit *textEdit;
@@ -67,7 +74,7 @@ private:
     QLabel *charCountLabel;
     QLabel *lineCountLabel;
 
-    // Spell checker
+    QToolBar *fileToolBar;
 
     int fontSize;
 };
