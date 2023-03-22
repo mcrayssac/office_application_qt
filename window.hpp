@@ -37,11 +37,11 @@ private slots:
     void decreaseFontSize();
     void uppercase();
     void lowercase();
-    void searchAndReplace();
     void replaceMisspelledWordWithSuggestion();
     static QStringList getSpellingSuggestions(const QString &word);
     void checkSpelling();
     void searchReplaceFunction(const QString &search, const QString &replace, bool findWholeWords);
+    void searchAndReplace();
 #ifndef QT_NO_SESSIONMANAGER
     void commitData(QSessionManager &);
 #endif
