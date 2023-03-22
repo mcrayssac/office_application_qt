@@ -118,9 +118,13 @@ void MainWindow::autoSave() {
 
 void MainWindow::about() {
     QMessageBox::about(this, tr("About Application"),
-                       tr("The <b>Application</b> example demonstrates how to "
-                          "write modern GUI applications using Qt, with a menu bar, "
-                          "toolbars, and a status bar."));
+                       tr("The Office Application is a desktop application built using Qt and C++ programming language. It is designed to provide similar functionality as LibreOffice. \nThe application offers various features such as :\n"
+                          "\n"
+                          "- Search and replace\n"
+                          "- Spelling checker\n"
+                          "- Word counter️\n"
+                          "- Automatic saves\n"
+                          "- and multiple format tools\n"));
 }
 
 void MainWindow::documentWasModified() {
