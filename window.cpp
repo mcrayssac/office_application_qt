@@ -489,7 +489,7 @@ void MainWindow::lowercase()
 
 void MainWindow::updateCounts() {
     QString text = textEdit->toPlainText();
-    int wordCount = text.split(QRegularExpression(R"((\s|\n|\r)+)"), Qt::SkipEmptyParts).count();
+    int wordCount = text.split(QRegularExpression(R"((\s|\n|\r)+)"), QString::SkipEmptyParts).count();
     int charCount = text.length();
     int lineCount = text.count('\n') + 1;
 
@@ -531,6 +531,8 @@ void MainWindow::searchAndReplace() {
     QLineEdit replaceLineEdit;
     QPushButton okButton(tr("OK"));
     QPushButton cancelButton(tr("Cancel"));
+    QPushButton toggleModeButton(tr("Toggle Mode: Word"));
+    bool findWholeWords = true;
 
     QGridLayout layout;
     layout.addWidget(&searchLabel, 0, 0);
@@ -539,20 +541,18 @@ void MainWindow::searchAndReplace() {
     layout.addWidget(&replaceLineEdit, 1, 1);
     layout.addWidget(&okButton, 2, 0);
     layout.addWidget(&cancelButton, 2, 1);
+    layout.addWidget(&toggleModeButton, 3, 0, 1, 2);
     dialog.setLayout(&layout);
 
     connect(&okButton, &QPushButton::clicked, &dialog, &QDialog::accept);
+    connect(&toggleModeButton, &QPushButton::clicked, [&]() {
+        findWholeWords = !findWholeWords;
+        toggleModeButton.setText(findWholeWords ? tr("Toggle Mode: Word") : tr("Toggle Mode: Letter"));
+    });
 
     if (dialog.exec() == QDialog::Accepted) {
         QString search = searchLineEdit.text();
         QString replace = replaceLineEdit.text();
-        if (textEdit->toPlainText().isEmpty()) {
-            qDebug() << "textEdit is empty";
-        } else {
-            qDebug() << "textEdit contains text" << textEdit->toPlainText() ;
-        }
-        /* TODO: findWholeWords with button (to false for letters) */
-        bool findWholeWords = true;
         searchReplaceFunction(search, replace, findWholeWords);
     }
 }
