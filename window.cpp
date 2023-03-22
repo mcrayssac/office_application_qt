@@ -3,6 +3,9 @@
 #include <QPushButton>
 #include <QSessionManager>
 #include <iostream>
+#include "hunspell/hunspell.hxx"
+// Load dictionary for spelling, to be sure where it is located type hunspell -D
+Hunspell spellChecker("/usr/share/hunspell/en_US.aff", "/usr/share/hunspell/en_US.dic");
 
 MainWindow::MainWindow() : textEdit(new QPlainTextEdit), fontSize(14) {
     setCentralWidget(textEdit);
@@ -15,10 +18,23 @@ MainWindow::MainWindow() : textEdit(new QPlainTextEdit), fontSize(14) {
     connect(textEdit->document(), &QTextDocument::contentsChanged,
             this, &MainWindow::documentWasModified);
 
-
     // Auto save
     autoSaveTimer = new QTimer(this);
     connect(autoSaveTimer, &QTimer::timeout, this, &MainWindow::autoSave);
+
+    // Word count
+
+    wordCountLabel = new QLabel(this);
+    charCountLabel = new QLabel(this);
+    lineCountLabel = new QLabel(this);
+
+    statusBar()->addPermanentWidget(wordCountLabel);
+    statusBar()->addPermanentWidget(charCountLabel);
+    statusBar()->addPermanentWidget(lineCountLabel);
+
+    connect(textEdit, &QPlainTextEdit::textChanged, this, &MainWindow::updateCounts);
+
+    updateCounts();
 
     QFont defaultFont = textEdit->font();
     defaultFont.setPointSize(fontSize);
@@ -72,15 +88,7 @@ bool MainWindow::save() {
     }
     autoSaveTimer->start(30000); // Enable auto-save every 30 seconds
 }
-/*
-bool MainWindow::saveAs() {
-    QFileDialog dialog(this);
-    dialog.setWindowModality(Qt::WindowModal);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    if (dialog.exec() != QDialog::Accepted)
-        return false;
-    return saveFile(dialog.selectedFiles().first());
-}*/
+
 
 bool MainWindow::saveAs() {
     QFileDialog dialog(this, tr("Save As"));
@@ -104,14 +112,19 @@ bool MainWindow::saveAs() {
 void MainWindow::autoSave() {
     if (!curFile.isEmpty()) {
         save();
+        autoSaveTimer->start(30000);
     }
 }
 
 void MainWindow::about() {
     QMessageBox::about(this, tr("About Application"),
-                       tr("The <b>Application</b> example demonstrates how to "
-                          "write modern GUI applications using Qt, with a menu bar, "
-                          "toolbars, and a status bar."));
+                       tr("The Office Application is a desktop application built using Qt and C++ programming language. It is designed to provide similar functionality as LibreOffice. \nThe application offers various features such as :\n"
+                          "\n"
+                          "- Search and replace\n"
+                          "- Spelling checker\n"
+                          "- Word counter️\n"
+                          "- Automatic saves\n"
+                          "- and multiple format tools\n"));
 }
 
 void MainWindow::documentWasModified() {
@@ -179,6 +192,7 @@ void MainWindow::loadFile(const QString &fileName) {
 
     setCurrentFile(fileName);
     statusBar()->showMessage(tr("File loaded"), 2000);
+    autoSave(); // Save the file immediately after opening
 }
 
 void MainWindow::setCurrentFile(const QString &fileName) {
@@ -473,6 +487,17 @@ void MainWindow::lowercase()
     }
 }
 
+void MainWindow::updateCounts() {
+    QString text = textEdit->toPlainText();
+    int wordCount = text.split(QRegularExpression(R"((\s|\n|\r)+)"), Qt::SkipEmptyParts).count();
+    int charCount = text.length();
+    int lineCount = text.count('\n') + 1;
+
+    wordCountLabel->setText(tr("Words: %1").arg(wordCount));
+    charCountLabel->setText(tr("Characters: %1").arg(charCount));
+    lineCountLabel->setText(tr("Lines: %1").arg(lineCount));
+}
+
 void MainWindow::searchReplaceFunction(const QString &search, const QString &replace, bool findWholeWords) {
     QTextCursor cursor = textEdit->textCursor();
     cursor.beginEditBlock();
@@ -495,7 +520,6 @@ void MainWindow::searchReplaceFunction(const QString &search, const QString &rep
     }
     cursor.endEditBlock();
 }
-
 
 void MainWindow::searchAndReplace() {
     QDialog dialog(this);
@@ -533,9 +557,69 @@ void MainWindow::searchAndReplace() {
     }
 }
 
+QStringList MainWindow::getSpellingSuggestions(const QString &word) {
+    QStringList suggestions;
 
+    if (spellChecker.spell(word.toStdString())) {
+        return suggestions;
+    }
 
+    std::vector<std::string> hunspellSuggestions = spellChecker.suggest(word.toStdString());
+    for (const std::string &suggestion : hunspellSuggestions) {
+        suggestions.append(QString::fromStdString(suggestion));
+    }
 
+    return suggestions;
+}
+
+void MainWindow::checkSpelling() {
+    QTextCursor cursor = textEdit->textCursor();
+    cursor.movePosition(QTextCursor::Start);
+
+    while (!cursor.atEnd()) {
+        cursor.select(QTextCursor::WordUnderCursor);
+        QString word = cursor.selectedText();
+        QStringList suggestions = getSpellingSuggestions(word);
+
+        if (!suggestions.isEmpty()) {
+            // Show suggestions in a custom context menu
+            QMenu contextMenu;
+            contextMenu.setTitle("Spelling Suggestions");
+
+            for (const QString &suggestion : suggestions) {
+                QAction *action = contextMenu.addAction(suggestion);
+                action->setData(suggestion);
+                connect(action, &QAction::triggered, this, &MainWindow::replaceMisspelledWordWithSuggestion);
+            }
+
+            // Show the context menu at the cursor position
+            QPoint cursorPos = textEdit->mapToGlobal(textEdit->cursorRect().bottomRight());
+            contextMenu.exec(cursorPos);
+        }
+
+        cursor.clearSelection();
+        cursor.movePosition(QTextCursor::NextWord);
+    }
+}
+
+void MainWindow::replaceMisspelledWordWithSuggestion() {
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (action && !action->data().isNull()) {
+        QString suggestion = action->data().toString();
+        QTextCursor cursor = textEdit->textCursor();
+        cursor.insertText(suggestion);
+    }
+}
+
+void MainWindow::undo()
+{
+    textEdit->undo();
+}
+
+void MainWindow::redo()
+{
+    textEdit->redo();
+}
 
 void MainWindow::createActions() {
 
@@ -580,6 +664,7 @@ void MainWindow::createActions() {
     QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
     QToolBar *editToolBar = addToolBar(tr("Edit"));
 #ifndef QT_NO_CLIPBOARD
+    // CUT
     const QIcon cutIcon = QIcon::fromTheme("edit-cut", QIcon(":/images/cut.png"));
     QAction *cutAct = new QAction(cutIcon, tr("Cu&t"), this);
     cutAct->setShortcuts(QKeySequence::Cut);
@@ -589,6 +674,7 @@ void MainWindow::createActions() {
     editMenu->addAction(cutAct);
     editToolBar->addAction(cutAct);
 
+    // COPY
     const QIcon copyIcon = QIcon::fromTheme("edit-copy", QIcon(":/images/copy.png"));
     QAction *copyAct = new QAction(copyIcon, tr("&Copy"), this);
     copyAct->setShortcuts(QKeySequence::Copy);
@@ -598,6 +684,7 @@ void MainWindow::createActions() {
     editMenu->addAction(copyAct);
     editToolBar->addAction(copyAct);
 
+    //  PASTE
     const QIcon pasteIcon = QIcon::fromTheme("edit-paste", QIcon(":/images/paste.png"));
     QAction *pasteAct = new QAction(pasteIcon, tr("&Paste"), this);
     pasteAct->setShortcuts(QKeySequence::Paste);
@@ -609,9 +696,32 @@ void MainWindow::createActions() {
 
     menuBar()->addSeparator();
 
+    // UNDO AND REDO
+    const QIcon undoIcon = QIcon("./images/undo.jpg");
+    QAction *undoAction = new QAction(undoIcon, tr("&Undo"), this);
+    undoAction->setShortcut(QKeySequence::Undo);
+    undoAction->setStatusTip(tr("Undo the last editing action"));
+    connect(undoAction, &QAction::triggered, this, &MainWindow::undo);
+
+    const QIcon redoIcon = QIcon("./images/redo.png");
+    QAction *redoAction = new QAction(redoIcon, tr("&Redo"), this);
+    redoAction->setShortcut(QKeySequence::Redo);
+    redoAction->setStatusTip(tr("Redo the last editing action"));
+    connect(redoAction, &QAction::triggered, this, &MainWindow::redo);
+
+    // Add undo and redo actions to the Edit menu
+    editMenu->addAction(undoAction);
+    editMenu->addAction(redoAction);
+
+    // Add undo and redo actions to the toolbar, if you have one
+    QToolBar *toolBar = addToolBar(tr("Edit"));
+    toolBar->addAction(undoAction);
+    toolBar->addAction(redoAction);
+
     QMenu *formatMenu = menuBar()->addMenu(tr("&Format"));
     QToolBar *formatToolBar = addToolBar(tr("Format"));
 
+    // BOLD
     const QIcon boldIcon = QIcon("./images/bold.png");
     QAction *boldAct = new QAction(boldIcon, tr("&Bold"), this);
     boldAct->setShortcut(QKeySequence::Bold);
@@ -620,6 +730,7 @@ void MainWindow::createActions() {
     formatMenu->addAction(boldAct);
     formatToolBar->addAction(boldAct);
 
+    // ITALIC
     const QIcon italicIcon = QIcon("./images/italic.png");
     QAction *italicAct = new QAction(italicIcon, tr("&Italic"), this);
     italicAct->setShortcut(QKeySequence::Italic);
@@ -628,6 +739,7 @@ void MainWindow::createActions() {
     formatMenu->addAction(italicAct);
     formatToolBar->addAction(italicAct);
 
+    // UNDERLINE
     const QIcon underlineIcon = QIcon("./images/underline.png");
     QAction *underlineAct = new QAction(underlineIcon, tr("&Underline"), this);
     underlineAct->setShortcut(QKeySequence::Underline);
@@ -636,6 +748,7 @@ void MainWindow::createActions() {
     formatMenu->addAction(underlineAct);
     formatToolBar->addAction(underlineAct);
 
+    // SUPERSCRIPT AND SUBSCRIPT
     const QIcon superscriptIcon = QIcon("./images/superscript.png");
     QAction *superscriptAct = new QAction(superscriptIcon, tr("&Superscript"), this);
     superscriptAct->setStatusTip(tr("Make the text superscript"));
@@ -650,6 +763,7 @@ void MainWindow::createActions() {
     formatMenu->addAction(subscriptAct);
     formatToolBar->addAction(subscriptAct);
 
+    // INCREASE AND DECREASE FONT SIZE
     const QIcon increaseFontSizeIcon = QIcon("./images/increaseFontSize.png");
     QAction *increaseFontSizeAct = new QAction(increaseFontSizeIcon, tr("&IncreaseFontSize"), this);
     increaseFontSizeAct->setStatusTip(tr("Increase font size"));
@@ -664,6 +778,7 @@ void MainWindow::createActions() {
     formatMenu->addAction(decreaseFontSizeAct);
     formatToolBar->addAction(decreaseFontSizeAct);
 
+    // UPPERCASE
     const QIcon uppercaseIcon = QIcon("./images/uppercase.png");
     QAction *uppercaseAct = new QAction(uppercaseIcon, tr("Uppercase"), this);
     uppercaseAct->setStatusTip(tr("Convert selected text to uppercase"));
@@ -671,6 +786,7 @@ void MainWindow::createActions() {
     formatMenu->addAction(uppercaseAct);
     formatToolBar->addAction(uppercaseAct);
 
+    // LOWERCASE
     const QIcon lowercaseIcon = QIcon("./images/lowercase.png");
     QAction *lowercaseAct = new QAction(lowercaseIcon, tr("Lowercase"), this);
     lowercaseAct->setStatusTip(tr("Convert selected text to lowercase"));
@@ -678,12 +794,27 @@ void MainWindow::createActions() {
     formatMenu->addAction(lowercaseAct);
     formatToolBar->addAction(lowercaseAct);
 
+    // Add a separator above search and replace
+    editMenu->addSeparator();
+
+    // SEARCH AND REPLACE
     const QIcon searchAndReplaceIcon = QIcon("./images/searchAndReplace.png");
     QAction *searchAndReplaceAct = new QAction(searchAndReplaceIcon, tr("SearchAndReplace"), this);
     searchAndReplaceAct->setStatusTip(tr("Search and replace text"));
     connect(searchAndReplaceAct, &QAction::triggered, this, &MainWindow::searchAndReplace);
-    formatMenu->addAction(searchAndReplaceAct);
-    formatToolBar->addAction(searchAndReplaceAct);
+    editMenu->addAction(searchAndReplaceAct);
+    editToolBar->addAction(searchAndReplaceAct);
+
+    editMenu->addSeparator();
+
+    // SPELLING
+    const QIcon spellingIcon =  QIcon(":/images/spelling.png");
+    QAction *checkSpellingAction = new QAction(spellingIcon, tr("Check Spelling"), this);
+    checkSpellingAction->setShortcut(QKeySequence(tr("Ctrl+Shift+S")));
+    checkSpellingAction->setStatusTip(tr("Check spelling"));
+    connect(checkSpellingAction, &QAction::triggered, this, &MainWindow::checkSpelling);
+    // Add the action to a menu
+    editMenu->addAction(checkSpellingAction);
 
 #endif // !QT_NO_CLIPBOARD
 

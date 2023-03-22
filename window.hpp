@@ -2,6 +2,7 @@
 #include <QPlainTextEdit>
 #include <QCloseEvent>
 #include <QSessionManager>
+#include <QLabel>
 
 
 class MainWindow : public QMainWindow
@@ -12,6 +13,8 @@ public:
     MainWindow();
 
     void loadFile(const QString &fileName);
+    void undo();
+    void redo();
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -35,6 +38,9 @@ private slots:
     void uppercase();
     void lowercase();
     void searchAndReplace();
+    void replaceMisspelledWordWithSuggestion();
+    static QStringList getSpellingSuggestions(const QString &word);
+    void checkSpelling();
     void searchReplaceFunction(const QString &search, const QString &replace, bool findWholeWords);
 #ifndef QT_NO_SESSIONMANAGER
     void commitData(QSessionManager &);
@@ -48,6 +54,8 @@ private:
     bool maybeSave();
     bool saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
+    void updateCounts();
+
     QString strippedName(const QString &fullFileName);
 
     QPlainTextEdit *textEdit;
@@ -55,6 +63,12 @@ private:
 
     // Auto save
     QTimer *autoSaveTimer;
+    // Word count
+    QLabel *wordCountLabel;
+    QLabel *charCountLabel;
+    QLabel *lineCountLabel;
+
+    // Spell checker
 
     int fontSize;
 };
