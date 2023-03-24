@@ -49,6 +49,8 @@ private slots:
     void searchReplaceFunction(const QString &search, const QString &replace, bool findWholeWords);
     void searchAndReplace();
     void onScrollBarValueChanged();
+    void setColorSelectedText(const QColor &color);
+    void setFontSelectedText(const QFont &font);
 #ifndef QT_NO_SESSIONMANAGER
     void commitData(QSessionManager &);
 #endif

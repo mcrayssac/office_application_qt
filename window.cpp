@@ -716,6 +716,34 @@ int MainWindow::lineNumberAreaWidth() {
     return space;
 }
 
+/* Change text color */
+
+void MainWindow::setColorSelectedText(const QColor &color) {
+    QTextCursor cursor = textEdit->textCursor();
+    if (!cursor.hasSelection()) {
+        return;
+    }
+
+    QTextCharFormat format;
+    format.setForeground(color);
+    cursor.mergeCharFormat(format);
+    textEdit->mergeCurrentCharFormat(format);
+}
+
+/* Change text font */
+
+void MainWindow::setFontSelectedText(const QFont &font) {
+    QTextCursor cursor = textEdit->textCursor();
+    if (!cursor.hasSelection()) {
+        return;
+    }
+
+    QTextCharFormat format;
+    format.setFont(font);
+    cursor.mergeCharFormat(format);
+    textEdit->mergeCurrentCharFormat(format);
+}
+
 
 /* Fonction d'association de fonctionnalités au menu et autres */
 
@@ -941,6 +969,33 @@ void MainWindow::createActions() {
     // Add the action to a menu
     editMenu->addAction(checkSpellingAction);
 
+    /* Change text color */
+    const QIcon changeColorIcon =  QIcon("./images/colorText.png");
+    QAction *changeColorAct = new QAction(changeColorIcon, tr("Change color"), this);
+    changeColorAct->setStatusTip(tr("Change the color of the selected text"));
+    connect(changeColorAct, &QAction::triggered, this, [this]() {
+        QColor color = QColorDialog::getColor(Qt::black, this, tr("Choose Text Color"));
+        if (color.isValid()) {
+            setColorSelectedText(color);
+        }
+    });
+    formatMenu->addAction(changeColorAct);
+    formatToolBar->addAction(changeColorAct);
+
+    /* Change text font */
+    const QIcon changeFontIcon =  QIcon("./images/fontText.png");
+    QAction *changeFontAct = new QAction(changeFontIcon, tr("Change font"), this);
+    changeFontAct->setStatusTip(tr("Change the font of the selected text"));
+    connect(changeFontAct, &QAction::triggered, this, [this]() {
+        bool ok;
+        QFont font = QFontDialog::getFont(&ok, textEdit->font(), this, tr("Choose Text Font"));
+        if (ok) {
+            setFontSelectedText(font);
+        }
+    });
+    formatMenu->addAction(changeFontAct);
+    formatToolBar->addAction(changeFontAct);
+
 #endif // !QT_NO_CLIPBOARD
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
@@ -952,7 +1007,11 @@ void MainWindow::createActions() {
 #ifndef QT_NO_CLIPBOARD
     cutAct->setEnabled(false);
     copyAct->setEnabled(false);
+    changeColorAct->setEnabled(false);
+    changeFontAct->setEnabled(false);
     connect(textEdit, &QPlainTextEdit::copyAvailable, cutAct, &QAction::setEnabled);
     connect(textEdit, &QPlainTextEdit::copyAvailable, copyAct, &QAction::setEnabled);
+    connect(textEdit, &QPlainTextEdit::copyAvailable, changeColorAct, &QAction::setEnabled);
+    connect(textEdit, &QPlainTextEdit::copyAvailable, changeFontAct, &QAction::setEnabled);
 #endif // !QT_NO_CLIPBOARD
 }
