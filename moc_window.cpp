@@ -1,19 +1,18 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'window.hpp'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.3)
+** Created by: The Qt Meta Object Compiler version 67 (Qt 5.12.8)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include <memory>
 #include "window.hpp"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'window.hpp' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.3. It"
+#error "This file was generated using the moc from 5.12.8. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -22,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[32];
-    char stringdata0[377];
+    QByteArrayData data[33];
+    char stringdata0[401];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -62,8 +61,9 @@ QT_MOC_LITERAL(26, 302, 6), // "search"
 QT_MOC_LITERAL(27, 309, 7), // "replace"
 QT_MOC_LITERAL(28, 317, 14), // "findWholeWords"
 QT_MOC_LITERAL(29, 332, 16), // "searchAndReplace"
-QT_MOC_LITERAL(30, 349, 10), // "commitData"
-QT_MOC_LITERAL(31, 360, 16) // "QSessionManager&"
+QT_MOC_LITERAL(30, 349, 23), // "onScrollBarValueChanged"
+QT_MOC_LITERAL(31, 373, 10), // "commitData"
+QT_MOC_LITERAL(32, 384, 16) // "QSessionManager&"
 
     },
     "MainWindow\0newFile\0\0open\0save\0saveAs\0"
@@ -76,7 +76,8 @@ QT_MOC_LITERAL(31, 360, 16) // "QSessionManager&"
     "changeTheme\0index\0showThemeMenu\0"
     "searchReplaceFunction\0search\0replace\0"
     "findWholeWords\0searchAndReplace\0"
-    "commitData\0QSessionManager&"
+    "onScrollBarValueChanged\0commitData\0"
+    "QSessionManager&"
 };
 #undef QT_MOC_LITERAL
 
@@ -86,7 +87,7 @@ static const uint qt_meta_data_MainWindow[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-      24,   14, // methods
+      25,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -94,30 +95,31 @@ static const uint qt_meta_data_MainWindow[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,  134,    2, 0x08 /* Private */,
-       3,    0,  135,    2, 0x08 /* Private */,
-       4,    0,  136,    2, 0x08 /* Private */,
-       5,    0,  137,    2, 0x08 /* Private */,
-       6,    0,  138,    2, 0x08 /* Private */,
-       7,    0,  139,    2, 0x08 /* Private */,
-       8,    0,  140,    2, 0x08 /* Private */,
-       9,    0,  141,    2, 0x08 /* Private */,
-      10,    0,  142,    2, 0x08 /* Private */,
-      11,    0,  143,    2, 0x08 /* Private */,
-      12,    0,  144,    2, 0x08 /* Private */,
-      13,    0,  145,    2, 0x08 /* Private */,
-      14,    0,  146,    2, 0x08 /* Private */,
-      15,    0,  147,    2, 0x08 /* Private */,
-      16,    0,  148,    2, 0x08 /* Private */,
-      17,    0,  149,    2, 0x08 /* Private */,
-      18,    0,  150,    2, 0x08 /* Private */,
-      19,    1,  151,    2, 0x08 /* Private */,
-      21,    0,  154,    2, 0x08 /* Private */,
-      22,    1,  155,    2, 0x08 /* Private */,
-      24,    0,  158,    2, 0x08 /* Private */,
-      25,    3,  159,    2, 0x08 /* Private */,
-      29,    0,  166,    2, 0x08 /* Private */,
-      30,    1,  167,    2, 0x08 /* Private */,
+       1,    0,  139,    2, 0x08 /* Private */,
+       3,    0,  140,    2, 0x08 /* Private */,
+       4,    0,  141,    2, 0x08 /* Private */,
+       5,    0,  142,    2, 0x08 /* Private */,
+       6,    0,  143,    2, 0x08 /* Private */,
+       7,    0,  144,    2, 0x08 /* Private */,
+       8,    0,  145,    2, 0x08 /* Private */,
+       9,    0,  146,    2, 0x08 /* Private */,
+      10,    0,  147,    2, 0x08 /* Private */,
+      11,    0,  148,    2, 0x08 /* Private */,
+      12,    0,  149,    2, 0x08 /* Private */,
+      13,    0,  150,    2, 0x08 /* Private */,
+      14,    0,  151,    2, 0x08 /* Private */,
+      15,    0,  152,    2, 0x08 /* Private */,
+      16,    0,  153,    2, 0x08 /* Private */,
+      17,    0,  154,    2, 0x08 /* Private */,
+      18,    0,  155,    2, 0x08 /* Private */,
+      19,    1,  156,    2, 0x08 /* Private */,
+      21,    0,  159,    2, 0x08 /* Private */,
+      22,    1,  160,    2, 0x08 /* Private */,
+      24,    0,  163,    2, 0x08 /* Private */,
+      25,    3,  164,    2, 0x08 /* Private */,
+      29,    0,  171,    2, 0x08 /* Private */,
+      30,    0,  172,    2, 0x08 /* Private */,
+      31,    1,  173,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -143,7 +145,8 @@ static const uint qt_meta_data_MainWindow[] = {
     QMetaType::Void,
     QMetaType::Void, QMetaType::QString, QMetaType::QString, QMetaType::Bool,   26,   27,   28,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 31,    2,
+    QMetaType::Void,
+    QMetaType::Void, 0x80000000 | 32,    2,
 
        0        // eod
 };
@@ -152,7 +155,7 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
         auto *_t = static_cast<MainWindow *>(_o);
-        (void)_t;
+        Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->newFile(); break;
         case 1: _t->open(); break;
@@ -180,14 +183,15 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 20: _t->showThemeMenu(); break;
         case 21: _t->searchReplaceFunction((*reinterpret_cast< const QString(*)>(_a[1])),(*reinterpret_cast< const QString(*)>(_a[2])),(*reinterpret_cast< bool(*)>(_a[3]))); break;
         case 22: _t->searchAndReplace(); break;
-        case 23: _t->commitData((*reinterpret_cast< QSessionManager(*)>(_a[1]))); break;
+        case 23: _t->onScrollBarValueChanged(); break;
+        case 24: _t->commitData((*reinterpret_cast< QSessionManager(*)>(_a[1]))); break;
         default: ;
         }
     }
 }
 
 QT_INIT_METAOBJECT const QMetaObject MainWindow::staticMetaObject = { {
-    QMetaObject::SuperData::link<QMainWindow::staticMetaObject>(),
+    &QMainWindow::staticMetaObject,
     qt_meta_stringdata_MainWindow.data,
     qt_meta_data_MainWindow,
     qt_static_metacall,
@@ -215,13 +219,13 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 24)
+        if (_id < 25)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 24;
+        _id -= 25;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 24)
+        if (_id < 25)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 24;
+        _id -= 25;
     }
     return _id;
 }

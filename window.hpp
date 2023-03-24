@@ -4,6 +4,7 @@
 #include <QSessionManager>
 #include <QLabel>
 #include <QActionGroup>
+#include "linenumbertextedit.hpp"
 
 
 
@@ -17,10 +18,11 @@ public:
     void loadFile(const QString &fileName);
     void undo();
     void redo();
+    int lineNumberAreaWidth();
 
 protected:
     void closeEvent(QCloseEvent *event) override;
-    int defaultFontSize;
+    void resizeEvent(QResizeEvent *event) override;
 
 private slots:
     void newFile();
@@ -46,6 +48,7 @@ private slots:
     void showThemeMenu();
     void searchReplaceFunction(const QString &search, const QString &replace, bool findWholeWords);
     void searchAndReplace();
+    void onScrollBarValueChanged();
 #ifndef QT_NO_SESSIONMANAGER
     void commitData(QSessionManager &);
 #endif
@@ -59,13 +62,14 @@ private:
     bool saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
     void updateCounts();
+    void updateLineNumberAreaWidth();
+    void highlightCurrentLine();
 
     QActionGroup *themeActionGroup;
     QMenu *fileMenu;
 
     QString strippedName(const QString &fullFileName);
 
-    QPlainTextEdit *textEdit;
     QString curFile;
 
     // Auto save
@@ -75,7 +79,8 @@ private:
     QLabel *charCountLabel;
     QLabel *lineCountLabel;
 
-    QToolBar *fileToolBar;
+    LineNumberTextEdit *textEdit; // Change QPlainTextEdit to LineNumberTextEdit
+    QWidget *lineNumberArea; // Add the lineNumberArea QWidget pointer
 
     int fontSize;
 };

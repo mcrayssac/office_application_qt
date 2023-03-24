@@ -6,10 +6,13 @@
 #include <QComboBox>
 #include <QToolBar>
 #include "hunspell/hunspell.hxx"
+#include <QPainter>
+#include <QTextBlock>
+#include <QScrollBar>
 // Load dictionary for spelling, to be sure where it is located type hunspell -D
 Hunspell spellChecker("/usr/share/hunspell/en_US.aff", "/usr/share/hunspell/en_US.dic");
 
-MainWindow::MainWindow() : textEdit(new QPlainTextEdit), fontSize(14) {
+MainWindow::MainWindow() : textEdit(new LineNumberTextEdit), lineNumberArea(new QWidget(this)), fontSize(14) {
     setCentralWidget(textEdit);
 
     createActions();
@@ -56,6 +59,13 @@ MainWindow::MainWindow() : textEdit(new QPlainTextEdit), fontSize(14) {
 
     setCurrentFile(QString());
     setUnifiedTitleAndToolBarOnMac(true);
+
+    lineNumberArea = new QWidget(this);
+    connect(textEdit, &QPlainTextEdit::textChanged, this, &MainWindow::updateLineNumberAreaWidth);
+    connect(textEdit, &LineNumberTextEdit::textChanged, this, &MainWindow::updateLineNumberAreaWidth);
+    connect(textEdit, &LineNumberTextEdit::cursorPositionChanged, this, &MainWindow::highlightCurrentLine);
+    highlightCurrentLine();
+
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
@@ -657,6 +667,58 @@ void MainWindow::showThemeMenu() {
     themeMenu.exec(QCursor::pos());
 }
 
+/* Fonctions pour la gestion des numérotations de lignes et la surbrillance de la ligne courante */
+
+void MainWindow::highlightCurrentLine() {
+    QList<QTextEdit::ExtraSelection> extraSelections;
+
+    if (!textEdit->isReadOnly()) {
+        QTextEdit::ExtraSelection selection;
+
+        QColor lineColor = QColor(Qt::lightGray);
+
+        selection.format.setBackground(lineColor);
+        selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+        selection.cursor = textEdit->textCursor();
+        selection.cursor.clearSelection();
+        extraSelections.append(selection);
+    }
+
+    textEdit->setExtraSelections(extraSelections);
+}
+
+void MainWindow::onScrollBarValueChanged()
+{
+    textEdit->updateLineNumberArea(textEdit->viewport()->rect(), 0);
+}
+
+void MainWindow::updateLineNumberAreaWidth() {
+    int width = lineNumberAreaWidth();
+    textEdit->setViewportMarginsPublic(width, 0, 0, 0);
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event) {
+    QMainWindow::resizeEvent(event);
+    QRect cr = contentsRect();
+    lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+}
+
+int MainWindow::lineNumberAreaWidth() {
+    int digits = 1;
+    int max = qMax(1, textEdit->document()->blockCount());
+    while (max >= 10) {
+        max /= 10;
+        ++digits;
+    }
+
+    int space = 3 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits;
+
+    return space;
+}
+
+
+/* Fonction d'association de fonctionnalités au menu et autres */
+
 void MainWindow::createActions() {
 
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
@@ -759,7 +821,7 @@ void MainWindow::createActions() {
     menuBar()->addSeparator();
 
     // UNDO AND REDO
-    const QIcon undoIcon = QIcon("./images/undo.jpg");
+    const QIcon undoIcon = QIcon("./images/undo.png");
     QAction *undoAction = new QAction(undoIcon, tr("&Undo"), this);
     undoAction->setShortcut(QKeySequence::Undo);
     undoAction->setStatusTip(tr("Undo the last editing action"));
