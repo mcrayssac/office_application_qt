@@ -50,7 +50,8 @@ private slots:
     void searchAndReplace();
     void onScrollBarValueChanged();
     void setColorSelectedText(const QColor &color);
-    void setFontSelectedText(const QFont &font);
+    void setFontText(const QFont &font);
+    void setFontSize(int size);
 #ifndef QT_NO_SESSIONMANAGER
     void commitData(QSessionManager &);
 #endif

@@ -732,17 +732,38 @@ void MainWindow::setColorSelectedText(const QColor &color) {
 
 /* Change text font */
 
-void MainWindow::setFontSelectedText(const QFont &font) {
+void MainWindow::setFontText(const QFont &font) {
     QTextCursor cursor = textEdit->textCursor();
-    if (!cursor.hasSelection()) {
-        return;
-    }
-
     QTextCharFormat format;
-    format.setFont(font);
-    cursor.mergeCharFormat(format);
+    QFont newFont = font;
+    newFont.setPointSize(textEdit->font().pointSize());
+    format.setFont(newFont);
+
+    if (cursor.hasSelection()) {
+        cursor.mergeCharFormat(format);
+    }
     textEdit->mergeCurrentCharFormat(format);
 }
+
+/* Pouvoir directement changer la taille du text */
+
+void MainWindow::setFontSize(int size) {
+    QTextCursor cursor = textEdit->textCursor();
+    QTextCharFormat format;
+    QFont newFont = textEdit->font();
+    newFont.setPointSize(size);
+    format.setFont(newFont);
+
+    if (cursor.hasSelection()) {
+        cursor.mergeCharFormat(format);
+    }
+    textEdit->mergeCurrentCharFormat(format);
+}
+
+
+
+
+
 
 
 /* Fonction d'association de fonctionnalités au menu et autres */
@@ -871,8 +892,58 @@ void MainWindow::createActions() {
     toolBar->addAction(undoAction);
     toolBar->addAction(redoAction);
 
+    /* Format menu and toolbar */
     QMenu *formatMenu = menuBar()->addMenu(tr("&Format"));
     QToolBar *formatToolBar = addToolBar(tr("Format"));
+
+    /* Change text color */
+    const QIcon changeColorIcon =  QIcon("./images/colorText.png");
+    QAction *changeColorAct = new QAction(changeColorIcon, tr("Change color"), this);
+    changeColorAct->setStatusTip(tr("Change the color of the selected text"));
+    connect(changeColorAct, &QAction::triggered, this, [this]() {
+        QColor color = QColorDialog::getColor(Qt::black, this, tr("Choose Text Color"));
+        if (color.isValid()) {
+            setColorSelectedText(color);
+        }
+    });
+    formatMenu->addAction(changeColorAct);
+    formatToolBar->addAction(changeColorAct);
+
+    /* Change text font */
+    const QIcon changeFontIcon =  QIcon("./images/fontText.png");
+    QAction *changeFontAct = new QAction(changeFontIcon, tr("Change font"), this);
+    changeFontAct->setStatusTip(tr("Change the font of the selected text"));
+    connect(changeFontAct, &QAction::triggered, this, [this]() {
+        bool ok;
+        QFont font = QFontDialog::getFont(&ok, textEdit->font(), this, tr("Choose Text Font"));
+        if (ok) {
+            setFontText(font);
+        }
+    });
+    formatMenu->addAction(changeFontAct);
+    formatToolBar->addAction(changeFontAct);
+
+    /* Change text font in toolbar */
+    QFontComboBox *fontComboBox = new QFontComboBox(this);
+    fontComboBox->setStatusTip(tr("Change font family"));
+    fontComboBox->setCurrentFont(textEdit->font());
+    connect(fontComboBox, &QFontComboBox::currentFontChanged, this, &MainWindow::setFontText);
+    formatToolBar->addWidget(fontComboBox);
+
+    /* Change text size in toolbar */
+    QComboBox *fontSizeComboBox = new QComboBox(this);
+    fontSizeComboBox->setEditable(true);
+    fontSizeComboBox->setStatusTip(tr("Change font size"));
+    fontSizeComboBox->setValidator(new QIntValidator(1, 1000, this));
+    QList<int> fontSizes = {8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72};
+    for (int fontSize : fontSizes) {
+        fontSizeComboBox->addItem(QString::number(fontSize));
+    }
+    fontSizeComboBox->setCurrentText(QString::number(textEdit->font().pointSize()));
+    connect(fontSizeComboBox, &QComboBox::currentTextChanged, this, [this](const QString &text) {
+        setFontSize(text.toInt());
+    });
+    formatToolBar->addWidget(fontSizeComboBox);
 
     // BOLD
     const QIcon boldIcon = QIcon("./images/bold.png");
@@ -969,32 +1040,11 @@ void MainWindow::createActions() {
     // Add the action to a menu
     editMenu->addAction(checkSpellingAction);
 
-    /* Change text color */
-    const QIcon changeColorIcon =  QIcon("./images/colorText.png");
-    QAction *changeColorAct = new QAction(changeColorIcon, tr("Change color"), this);
-    changeColorAct->setStatusTip(tr("Change the color of the selected text"));
-    connect(changeColorAct, &QAction::triggered, this, [this]() {
-        QColor color = QColorDialog::getColor(Qt::black, this, tr("Choose Text Color"));
-        if (color.isValid()) {
-            setColorSelectedText(color);
-        }
-    });
-    formatMenu->addAction(changeColorAct);
-    formatToolBar->addAction(changeColorAct);
 
-    /* Change text font */
-    const QIcon changeFontIcon =  QIcon("./images/fontText.png");
-    QAction *changeFontAct = new QAction(changeFontIcon, tr("Change font"), this);
-    changeFontAct->setStatusTip(tr("Change the font of the selected text"));
-    connect(changeFontAct, &QAction::triggered, this, [this]() {
-        bool ok;
-        QFont font = QFontDialog::getFont(&ok, textEdit->font(), this, tr("Choose Text Font"));
-        if (ok) {
-            setFontSelectedText(font);
-        }
-    });
-    formatMenu->addAction(changeFontAct);
-    formatToolBar->addAction(changeFontAct);
+
+
+
+
 
 #endif // !QT_NO_CLIPBOARD
 
