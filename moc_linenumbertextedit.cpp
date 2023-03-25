@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_LineNumberTextEdit_t {
-    QByteArrayData data[3];
-    char stringdata0[46];
+    QByteArrayData data[6];
+    char stringdata0[102];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -33,11 +33,15 @@ static const qt_meta_stringdata_LineNumberTextEdit_t qt_meta_stringdata_LineNumb
     {
 QT_MOC_LITERAL(0, 0, 18), // "LineNumberTextEdit"
 QT_MOC_LITERAL(1, 19, 25), // "updateLineNumberAreaWidth"
-QT_MOC_LITERAL(2, 45, 0) // ""
+QT_MOC_LITERAL(2, 45, 0), // ""
+QT_MOC_LITERAL(3, 46, 23), // "onScrollBarValueChanged"
+QT_MOC_LITERAL(4, 70, 5), // "value"
+QT_MOC_LITERAL(5, 76, 25) // "cursorPositionChangedSlot"
 
     },
     "LineNumberTextEdit\0updateLineNumberAreaWidth\0"
-    ""
+    "\0onScrollBarValueChanged\0value\0"
+    "cursorPositionChangedSlot"
 };
 #undef QT_MOC_LITERAL
 
@@ -47,7 +51,7 @@ static const uint qt_meta_data_LineNumberTextEdit[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       1,   14, // methods
+       3,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -55,9 +59,13 @@ static const uint qt_meta_data_LineNumberTextEdit[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   19,    2, 0x08 /* Private */,
+       1,    0,   29,    2, 0x08 /* Private */,
+       3,    1,   30,    2, 0x08 /* Private */,
+       5,    0,   33,    2, 0x08 /* Private */,
 
  // slots: parameters
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Int,    4,
     QMetaType::Void,
 
        0        // eod
@@ -70,14 +78,15 @@ void LineNumberTextEdit::qt_static_metacall(QObject *_o, QMetaObject::Call _c, i
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->updateLineNumberAreaWidth(); break;
+        case 1: _t->onScrollBarValueChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 2: _t->cursorPositionChangedSlot(); break;
         default: ;
         }
     }
-    Q_UNUSED(_a);
 }
 
 QT_INIT_METAOBJECT const QMetaObject LineNumberTextEdit::staticMetaObject = { {
-    &QPlainTextEdit::staticMetaObject,
+    &QTextEdit::staticMetaObject,
     qt_meta_stringdata_LineNumberTextEdit.data,
     qt_meta_data_LineNumberTextEdit,
     qt_static_metacall,
@@ -96,22 +105,22 @@ void *LineNumberTextEdit::qt_metacast(const char *_clname)
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_LineNumberTextEdit.stringdata0))
         return static_cast<void*>(this);
-    return QPlainTextEdit::qt_metacast(_clname);
+    return QTextEdit::qt_metacast(_clname);
 }
 
 int LineNumberTextEdit::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 {
-    _id = QPlainTextEdit::qt_metacall(_c, _id, _a);
+    _id = QTextEdit::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 1)
+        if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 1;
+        _id -= 3;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 1)
+        if (_id < 3)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 1;
+        _id -= 3;
     }
     return _id;
 }

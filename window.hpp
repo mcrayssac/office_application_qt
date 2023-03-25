@@ -1,5 +1,5 @@
 #include <QMainWindow>
-#include <QPlainTextEdit>
+#include <QTextEdit>
 #include <QCloseEvent>
 #include <QSessionManager>
 #include <QLabel>
@@ -52,6 +52,7 @@ private slots:
     void setColorSelectedText(const QColor &color);
     void setFontText(const QFont &font);
     void setFontSize(int size);
+    void insertImage();
 #ifndef QT_NO_SESSIONMANAGER
     void commitData(QSessionManager &);
 #endif
@@ -67,6 +68,10 @@ private:
     void updateCounts();
     void updateLineNumberAreaWidth();
     void highlightCurrentLine();
+    void createZoomInAndZoomOut();
+
+    QAction *zoomInAction;
+    QAction *zoomOutAction;
 
     QActionGroup *themeActionGroup;
     QMenu *fileMenu;
@@ -82,7 +87,7 @@ private:
     QLabel *charCountLabel;
     QLabel *lineCountLabel;
 
-    LineNumberTextEdit *textEdit; // Change QPlainTextEdit to LineNumberTextEdit
+    LineNumberTextEdit *textEdit; // Change QTextEdit to LineNumberTextEdit
     QWidget *lineNumberArea; // Add the lineNumberArea QWidget pointer
 
     int fontSize;

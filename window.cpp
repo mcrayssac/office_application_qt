@@ -37,7 +37,7 @@ MainWindow::MainWindow() : textEdit(new LineNumberTextEdit), lineNumberArea(new 
     statusBar()->addPermanentWidget(charCountLabel);
     statusBar()->addPermanentWidget(lineCountLabel);
 
-    connect(textEdit, &QPlainTextEdit::textChanged, this, &MainWindow::updateCounts);
+    connect(textEdit, &QTextEdit::textChanged, this, &MainWindow::updateCounts);
 
     updateCounts();
 
@@ -61,7 +61,7 @@ MainWindow::MainWindow() : textEdit(new LineNumberTextEdit), lineNumberArea(new 
     setUnifiedTitleAndToolBarOnMac(true);
 
     lineNumberArea = new QWidget(this);
-    connect(textEdit, &QPlainTextEdit::textChanged, this, &MainWindow::updateLineNumberAreaWidth);
+    connect(textEdit, &QTextEdit::textChanged, this, &MainWindow::updateLineNumberAreaWidth);
     connect(textEdit, &LineNumberTextEdit::textChanged, this, &MainWindow::updateLineNumberAreaWidth);
     connect(textEdit, &LineNumberTextEdit::cursorPositionChanged, this, &MainWindow::highlightCurrentLine);
     highlightCurrentLine();
@@ -145,6 +145,7 @@ void MainWindow::documentWasModified() {
 
 void MainWindow::createStatusBar() {
     statusBar()->showMessage(tr("Ready"));
+    createZoomInAndZoomOut();
 }
 
 void MainWindow::writeSettings() {
@@ -760,6 +761,51 @@ void MainWindow::setFontSize(int size) {
     textEdit->mergeCurrentCharFormat(format);
 }
 
+/* Zoom in and zoom out */
+
+void MainWindow::createZoomInAndZoomOut() {
+    /* Zoom In */
+    zoomInAction = new QAction(QIcon("./images/zoom-in.png"), tr("Zoom In"), this);
+    zoomInAction->setShortcut(QKeySequence::ZoomIn);
+    zoomInAction->setStatusTip(tr("Zoom in on the text"));
+    connect(zoomInAction, &QAction::triggered, this, [this](bool) { textEdit->zoomIn(); });
+    QToolButton *zoomInButton = new QToolButton;
+    zoomInButton->setDefaultAction(zoomInAction);
+
+    /* Zoom Out */
+    zoomOutAction = new QAction(QIcon("./images/zoom-out.png"), tr("Zoom Out"), this);
+    zoomOutAction->setShortcut(QKeySequence::ZoomOut);
+    zoomOutAction->setStatusTip(tr("Zoom out of the text"));
+    connect(zoomOutAction, &QAction::triggered, this, [this](bool) { textEdit->zoomOut(); });
+    QToolButton *zoomOutButton = new QToolButton;
+    zoomOutButton->setDefaultAction(zoomOutAction);
+
+    /* Box for zoom in and out */
+    QHBoxLayout *zoomLayout = new QHBoxLayout;
+    zoomLayout->setContentsMargins(0, 0, 0, 0);
+    zoomLayout->setSpacing(2);
+    zoomLayout->addWidget(zoomInButton);
+    zoomLayout->addWidget(zoomOutButton);
+
+    /* Box for zoom in and out buttons and add to statusBar */
+    QWidget *zoomWidget = new QWidget;
+    zoomWidget->setLayout(zoomLayout);
+    statusBar()->addPermanentWidget(zoomWidget);
+}
+
+/* Insert image functionality */
+
+void MainWindow::insertImage() {
+    QString imagePath = QFileDialog::getOpenFileName(this, tr("Open Image"), "", tr("Images (*.png *.xpm *.jpg *.bmp *.gif)"));
+    if (!imagePath.isEmpty()) {
+        QImage image(imagePath);
+        if (!image.isNull()) {
+            QTextCursor cursor = textEdit->textCursor();
+            cursor.insertImage(image);
+        }
+    }
+}
+
 
 
 
@@ -843,7 +889,7 @@ void MainWindow::createActions() {
     cutAct->setShortcuts(QKeySequence::Cut);
     cutAct->setStatusTip(tr("Cut the current selection's contents to the "
                             "clipboard"));
-    connect(cutAct, &QAction::triggered, textEdit, &QPlainTextEdit::cut);
+    connect(cutAct, &QAction::triggered, textEdit, &QTextEdit::cut);
     editMenu->addAction(cutAct);
     editToolBar->addAction(cutAct);
 
@@ -853,7 +899,7 @@ void MainWindow::createActions() {
     copyAct->setShortcuts(QKeySequence::Copy);
     copyAct->setStatusTip(tr("Copy the current selection's contents to the "
                              "clipboard"));
-    connect(copyAct, &QAction::triggered, textEdit, &QPlainTextEdit::copy);
+    connect(copyAct, &QAction::triggered, textEdit, &QTextEdit::copy);
     editMenu->addAction(copyAct);
     editToolBar->addAction(copyAct);
 
@@ -863,7 +909,7 @@ void MainWindow::createActions() {
     pasteAct->setShortcuts(QKeySequence::Paste);
     pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current "
                               "selection"));
-    connect(pasteAct, &QAction::triggered, textEdit, &QPlainTextEdit::paste);
+    connect(pasteAct, &QAction::triggered, textEdit, &QTextEdit::paste);
     editMenu->addAction(pasteAct);
     editToolBar->addAction(pasteAct);
 
@@ -1040,7 +1086,17 @@ void MainWindow::createActions() {
     // Add the action to a menu
     editMenu->addAction(checkSpellingAction);
 
+    /* Insert menu and toolbar */
+    QMenu *insertMenu = menuBar()->addMenu(tr("&Insert"));
+    QToolBar *insertToolBar = addToolBar(tr("Insert"));
 
+    /* Insert image into the text */
+    const QIcon insertImageIcon =  QIcon("./images/insert-image.png");
+    QAction *insertImageAct = new QAction(insertImageIcon, tr("Insert Image"), this);
+    insertImageAct->setStatusTip(tr("Insert an image into the text"));
+    connect(insertImageAct, &QAction::triggered, this, &MainWindow::insertImage);
+    insertMenu->addAction(insertImageAct);
+    insertToolBar->addAction(insertImageAct);
 
 
 
@@ -1059,9 +1115,9 @@ void MainWindow::createActions() {
     copyAct->setEnabled(false);
     changeColorAct->setEnabled(false);
     changeFontAct->setEnabled(false);
-    connect(textEdit, &QPlainTextEdit::copyAvailable, cutAct, &QAction::setEnabled);
-    connect(textEdit, &QPlainTextEdit::copyAvailable, copyAct, &QAction::setEnabled);
-    connect(textEdit, &QPlainTextEdit::copyAvailable, changeColorAct, &QAction::setEnabled);
-    connect(textEdit, &QPlainTextEdit::copyAvailable, changeFontAct, &QAction::setEnabled);
+    connect(textEdit, &QTextEdit::copyAvailable, cutAct, &QAction::setEnabled);
+    connect(textEdit, &QTextEdit::copyAvailable, copyAct, &QAction::setEnabled);
+    connect(textEdit, &QTextEdit::copyAvailable, changeColorAct, &QAction::setEnabled);
+    connect(textEdit, &QTextEdit::copyAvailable, changeFontAct, &QAction::setEnabled);
 #endif // !QT_NO_CLIPBOARD
 }

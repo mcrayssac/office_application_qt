@@ -1,12 +1,12 @@
 #ifndef LINENUMBERTEXTEDIT_H
 #define LINENUMBERTEXTEDIT_H
 
-#include <QPlainTextEdit>
+#include <QTextEdit>
 #include <QTextBlock>
 
 class LineNumberArea;
 
-class LineNumberTextEdit : public QPlainTextEdit
+class LineNumberTextEdit : public QTextEdit
 {
 Q_OBJECT
 
@@ -27,6 +27,8 @@ protected:
 private slots:
     /* Mettre à jour la largeur de la zone de numéro de ligne */
     void updateLineNumberAreaWidth();
+    void onScrollBarValueChanged(int value);
+    void cursorPositionChangedSlot();
 
 private:
     /* Zone de numéro de ligne */
