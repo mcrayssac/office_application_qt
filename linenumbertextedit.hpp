@@ -1,5 +1,5 @@
-#ifndef LINENUMBERTEXTEDIT_H
-#define LINENUMBERTEXTEDIT_H
+#ifndef LINENUMBERTEXTEDIT_HPP
+#define LINENUMBERTEXTEDIT_HPP
 
 #include <QTextEdit>
 #include <QTextBlock>
@@ -23,6 +23,7 @@ public:
 protected:
     /* Gérer le redimensionnement des numéros si augmentation/reduction de la window */
     void resizeEvent(QResizeEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
 
 private slots:
     /* Mettre à jour la largeur de la zone de numéro de ligne */
@@ -33,6 +34,9 @@ private slots:
 private:
     /* Zone de numéro de ligne */
     LineNumberArea *lineNumberArea;
+
+signals:
+    void linkClicked(const QUrl &url);
 };
 
 class LineNumberArea : public QWidget
@@ -53,4 +57,4 @@ private:
     LineNumberTextEdit *codeEditor;
 };
 
-#endif // LINENUMBERTEXTEDIT_H
+#endif // LINENUMBERTEXTEDIT_HPP

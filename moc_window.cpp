@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[40];
-    char stringdata0[474];
+    QByteArrayData data[44];
+    char stringdata0[518];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -69,8 +69,12 @@ QT_MOC_LITERAL(34, 412, 4), // "font"
 QT_MOC_LITERAL(35, 417, 11), // "setFontSize"
 QT_MOC_LITERAL(36, 429, 4), // "size"
 QT_MOC_LITERAL(37, 434, 11), // "insertImage"
-QT_MOC_LITERAL(38, 446, 10), // "commitData"
-QT_MOC_LITERAL(39, 457, 16) // "QSessionManager&"
+QT_MOC_LITERAL(38, 446, 11), // "createTable"
+QT_MOC_LITERAL(39, 458, 10), // "insertLink"
+QT_MOC_LITERAL(40, 469, 15), // "onAnchorClicked"
+QT_MOC_LITERAL(41, 485, 4), // "link"
+QT_MOC_LITERAL(42, 490, 10), // "commitData"
+QT_MOC_LITERAL(43, 501, 16) // "QSessionManager&"
 
     },
     "MainWindow\0newFile\0\0open\0save\0saveAs\0"
@@ -85,7 +89,8 @@ QT_MOC_LITERAL(39, 457, 16) // "QSessionManager&"
     "findWholeWords\0searchAndReplace\0"
     "onScrollBarValueChanged\0setColorSelectedText\0"
     "color\0setFontText\0font\0setFontSize\0"
-    "size\0insertImage\0commitData\0"
+    "size\0insertImage\0createTable\0insertLink\0"
+    "onAnchorClicked\0link\0commitData\0"
     "QSessionManager&"
 };
 #undef QT_MOC_LITERAL
@@ -96,7 +101,7 @@ static const uint qt_meta_data_MainWindow[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-      29,   14, // methods
+      32,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -104,35 +109,38 @@ static const uint qt_meta_data_MainWindow[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,  159,    2, 0x08 /* Private */,
-       3,    0,  160,    2, 0x08 /* Private */,
-       4,    0,  161,    2, 0x08 /* Private */,
-       5,    0,  162,    2, 0x08 /* Private */,
-       6,    0,  163,    2, 0x08 /* Private */,
-       7,    0,  164,    2, 0x08 /* Private */,
-       8,    0,  165,    2, 0x08 /* Private */,
-       9,    0,  166,    2, 0x08 /* Private */,
-      10,    0,  167,    2, 0x08 /* Private */,
-      11,    0,  168,    2, 0x08 /* Private */,
-      12,    0,  169,    2, 0x08 /* Private */,
-      13,    0,  170,    2, 0x08 /* Private */,
-      14,    0,  171,    2, 0x08 /* Private */,
-      15,    0,  172,    2, 0x08 /* Private */,
-      16,    0,  173,    2, 0x08 /* Private */,
-      17,    0,  174,    2, 0x08 /* Private */,
-      18,    0,  175,    2, 0x08 /* Private */,
-      19,    1,  176,    2, 0x08 /* Private */,
-      21,    0,  179,    2, 0x08 /* Private */,
-      22,    1,  180,    2, 0x08 /* Private */,
-      24,    0,  183,    2, 0x08 /* Private */,
-      25,    3,  184,    2, 0x08 /* Private */,
-      29,    0,  191,    2, 0x08 /* Private */,
-      30,    0,  192,    2, 0x08 /* Private */,
-      31,    1,  193,    2, 0x08 /* Private */,
-      33,    1,  196,    2, 0x08 /* Private */,
-      35,    1,  199,    2, 0x08 /* Private */,
-      37,    0,  202,    2, 0x08 /* Private */,
-      38,    1,  203,    2, 0x08 /* Private */,
+       1,    0,  174,    2, 0x08 /* Private */,
+       3,    0,  175,    2, 0x08 /* Private */,
+       4,    0,  176,    2, 0x08 /* Private */,
+       5,    0,  177,    2, 0x08 /* Private */,
+       6,    0,  178,    2, 0x08 /* Private */,
+       7,    0,  179,    2, 0x08 /* Private */,
+       8,    0,  180,    2, 0x08 /* Private */,
+       9,    0,  181,    2, 0x08 /* Private */,
+      10,    0,  182,    2, 0x08 /* Private */,
+      11,    0,  183,    2, 0x08 /* Private */,
+      12,    0,  184,    2, 0x08 /* Private */,
+      13,    0,  185,    2, 0x08 /* Private */,
+      14,    0,  186,    2, 0x08 /* Private */,
+      15,    0,  187,    2, 0x08 /* Private */,
+      16,    0,  188,    2, 0x08 /* Private */,
+      17,    0,  189,    2, 0x08 /* Private */,
+      18,    0,  190,    2, 0x08 /* Private */,
+      19,    1,  191,    2, 0x08 /* Private */,
+      21,    0,  194,    2, 0x08 /* Private */,
+      22,    1,  195,    2, 0x08 /* Private */,
+      24,    0,  198,    2, 0x08 /* Private */,
+      25,    3,  199,    2, 0x08 /* Private */,
+      29,    0,  206,    2, 0x08 /* Private */,
+      30,    0,  207,    2, 0x08 /* Private */,
+      31,    1,  208,    2, 0x08 /* Private */,
+      33,    1,  211,    2, 0x08 /* Private */,
+      35,    1,  214,    2, 0x08 /* Private */,
+      37,    0,  217,    2, 0x08 /* Private */,
+      38,    0,  218,    2, 0x08 /* Private */,
+      39,    0,  219,    2, 0x08 /* Private */,
+      40,    1,  220,    2, 0x08 /* Private */,
+      42,    1,  223,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -163,7 +171,10 @@ static const uint qt_meta_data_MainWindow[] = {
     QMetaType::Void, QMetaType::QFont,   34,
     QMetaType::Void, QMetaType::Int,   36,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 39,    2,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::QUrl,   41,
+    QMetaType::Void, 0x80000000 | 43,    2,
 
        0        // eod
 };
@@ -205,7 +216,10 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 25: _t->setFontText((*reinterpret_cast< const QFont(*)>(_a[1]))); break;
         case 26: _t->setFontSize((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 27: _t->insertImage(); break;
-        case 28: _t->commitData((*reinterpret_cast< QSessionManager(*)>(_a[1]))); break;
+        case 28: _t->createTable(); break;
+        case 29: _t->insertLink(); break;
+        case 30: _t->onAnchorClicked((*reinterpret_cast< const QUrl(*)>(_a[1]))); break;
+        case 31: _t->commitData((*reinterpret_cast< QSessionManager(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -240,13 +254,13 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 29)
+        if (_id < 32)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 29;
+        _id -= 32;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 29)
+        if (_id < 32)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 29;
+        _id -= 32;
     }
     return _id;
 }

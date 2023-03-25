@@ -6,8 +6,6 @@
 #include <QActionGroup>
 #include "linenumbertextedit.hpp"
 
-
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -53,6 +51,10 @@ private slots:
     void setFontText(const QFont &font);
     void setFontSize(int size);
     void insertImage();
+    void createTable();
+    void insertLink();
+    void onAnchorClicked(const QUrl &link);
+
 #ifndef QT_NO_SESSIONMANAGER
     void commitData(QSessionManager &);
 #endif
@@ -87,8 +89,8 @@ private:
     QLabel *charCountLabel;
     QLabel *lineCountLabel;
 
-    LineNumberTextEdit *textEdit; // Change QTextEdit to LineNumberTextEdit
-    QWidget *lineNumberArea; // Add the lineNumberArea QWidget pointer
+    LineNumberTextEdit *textEdit;
+    QWidget *lineNumberArea;
 
     int fontSize;
 };

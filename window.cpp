@@ -66,6 +66,7 @@ MainWindow::MainWindow() : textEdit(new LineNumberTextEdit), lineNumberArea(new 
     connect(textEdit, &LineNumberTextEdit::cursorPositionChanged, this, &MainWindow::highlightCurrentLine);
     highlightCurrentLine();
 
+    connect(textEdit, &LineNumberTextEdit::linkClicked, this, &MainWindow::onAnchorClicked);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
@@ -807,6 +808,71 @@ void MainWindow::insertImage() {
 }
 
 
+/* Table gestion */
+
+void MainWindow::createTable()
+{
+    bool ok;
+    int rows = QInputDialog::getInt(this, tr("Nombre de lignes"), tr("Entrez le nombre de lignes :"), 3, 1, 100, 1, &ok);
+    if (!ok) {
+        return;
+    }
+    int columns = QInputDialog::getInt(this, tr("Nombre de colonnes"), tr("Entrez le nombre de colonnes :"), 4, 1, 100, 1, &ok);
+    if (!ok) {
+        return;
+    }
+
+    int leftMargin = textEdit->lineNumberAreaWidth();
+    QString tableHtml = QString("<table border=\"1\" cellspacing=\"0\" cellpadding=\"3\" style=\"margin-left: %1px;\">").arg(leftMargin);
+    for (int i = 0; i < rows; ++i) {
+        tableHtml += "<tr>";
+        for (int j = 0; j < columns + 1; ++j) {
+            tableHtml += "<td>&nbsp;</td>";
+        }
+        tableHtml += "</tr>";
+    }
+    tableHtml += "</table>";
+    QTextCursor cursor = textEdit->textCursor();
+    cursor.insertHtml(tableHtml);
+    cursor.insertBlock();
+    cursor.insertText(QString::fromUtf8(u8" "));
+
+}
+
+/* Insert hyperlink */
+
+void MainWindow::insertLink()
+{
+    bool ok;
+    QString url = QInputDialog::getText(this, tr("Insert Link"), tr("Enter URL:"), QLineEdit::Normal, "", &ok);
+    if (!ok || url.isEmpty()) {
+        return;
+    }
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+        url = "http://" + url;
+    }
+    QString displayText = QInputDialog::getText(this, tr("Insert Link"), tr("Enter text to display:"), QLineEdit::Normal, "", &ok);
+    if (!ok || displayText.isEmpty()) {
+        return;
+    }
+
+    QTextCursor cursor = textEdit->textCursor();
+    QTextCharFormat initialFormat = cursor.charFormat();
+    QTextCharFormat charFormat = cursor.charFormat();
+    charFormat.setForeground(QBrush(Qt::blue));
+    charFormat.setFontUnderline(true);
+    charFormat.setAnchor(true);
+    charFormat.setAnchorHref(url);
+    charFormat.setAnchorName(url);
+    cursor.insertText(displayText, charFormat);
+    cursor.setCharFormat(initialFormat);
+    cursor.insertText(QString::fromUtf8(u8" "), initialFormat);
+}
+
+void MainWindow::onAnchorClicked(const QUrl &link)
+{
+    QDesktopServices::openUrl(link);
+}
 
 
 
@@ -1098,6 +1164,23 @@ void MainWindow::createActions() {
     insertMenu->addAction(insertImageAct);
     insertToolBar->addAction(insertImageAct);
 
+    insertMenu->addSeparator();
+
+    const QIcon insertTableIcon =  QIcon("./images/insert-table.png");
+    QAction *insertTableAct = new QAction(insertTableIcon, tr("Insert Table"), this);
+    insertTableAct->setStatusTip(tr("Insert a table into the text"));
+    connect(insertTableAct, &QAction::triggered, this, &MainWindow::createTable);
+    insertMenu->addAction(insertTableAct);
+    insertToolBar->addAction(insertTableAct);
+
+    insertMenu->addSeparator();
+
+    const QIcon insertLinkIcon =  QIcon("./images/insert-hyperlink.png");
+    QAction *insertLinkAct = new QAction(insertLinkIcon, tr("Insert Hyperlink"), this);
+    insertLinkAct->setStatusTip(tr("Insert a hyperlink into the text"));
+    connect(insertLinkAct, &QAction::triggered, this, &MainWindow::insertLink);
+    insertMenu->addAction(insertLinkAct);
+    insertToolBar->addAction(insertLinkAct);
 
 
 

@@ -3,6 +3,9 @@
 #include <QPainter>
 #include <QAbstractTextDocumentLayout>
 #include <QScrollBar>
+#include <QMouseEvent>
+#include <QUrl>
+
 
 LineNumberTextEdit::LineNumberTextEdit(QWidget *parent)
         : QTextEdit(parent)
@@ -11,6 +14,7 @@ LineNumberTextEdit::LineNumberTextEdit(QWidget *parent)
 
     connect(this->document(), &QTextDocument::blockCountChanged, this, &LineNumberTextEdit::updateLineNumberAreaWidth);
     connect(this, &QTextEdit::cursorPositionChanged, this, &LineNumberTextEdit::cursorPositionChangedSlot);
+    connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &LineNumberTextEdit::onScrollBarValueChanged);
 
     updateLineNumberAreaWidth();
 }
@@ -28,12 +32,15 @@ void LineNumberTextEdit::onScrollBarValueChanged(int value)
 {
     Q_UNUSED(value);
     updateLineNumberArea(QRect(), 0);
+    updateLineNumberAreaWidth();
 }
 
 void LineNumberTextEdit::lineNumberAreaPaintEvent(QPaintEvent *event)
 {
     QPainter painter(lineNumberArea);
     painter.fillRect(event->rect(), Qt::lightGray);
+
+    int maxDigitsWidth = lineNumberAreaWidth();
 
     QTextCursor cursor = this->cursorForPosition(QPoint(0, event->rect().top()));
     int blockNumber = cursor.blockNumber();
@@ -42,14 +49,31 @@ void LineNumberTextEdit::lineNumberAreaPaintEvent(QPaintEvent *event)
 
     while (top <= event->rect().bottom()) {
         if (bottom >= event->rect().top()) {
-            QString number = QString::number(blockNumber + 1) + " "; // Ajouter un espace à la fin du numéro
-            painter.setPen(Qt::black);
-            // Changer l'alignement de Qt::AlignRight à Qt::AlignLeft
-            painter.drawText(0, top, lineNumberArea->width(), fontMetrics().height(), Qt::AlignRight, number);
+            QTextTable *table = cursor.currentTable();
+            if (!table && !cursor.block().text().startsWith(QStringLiteral(" "))) {
+                QString number = QString::number(blockNumber + 1)+" ";
+                painter.setPen(Qt::black);
+                painter.drawText(0, top, lineNumberArea->width(), fontMetrics().height(), Qt::AlignRight, number);
+                blockNumber++;
+            } else {
+                QTextBlock nextBlock = cursor.block().next();
+                QTextCursor nextCursor(nextBlock);
+                QTextTable *nextTable = nextCursor.currentTable();
+                if (table != nextTable) {
+                    QString number = QString::number(blockNumber + 1)+" ";
+                    painter.setPen(Qt::black);
+                    painter.drawText(0, top, lineNumberArea->width(), fontMetrics().height(), Qt::AlignRight, number);
+                }
+                QTextBlock block = cursor.block();
+                QTextBlockFormat blockFormat = block.blockFormat();
+                if (blockFormat.leftMargin() != maxDigitsWidth) {
+                    blockFormat.setLeftMargin(maxDigitsWidth);
+                    cursor.setBlockFormat(blockFormat);
+                }
+            }
         }
 
         if (cursor.movePosition(QTextCursor::NextBlock)) {
-            blockNumber = cursor.blockNumber();
             top = bottom;
             bottom = (int)cursorRect(cursor).bottom();
         } else {
@@ -99,9 +123,17 @@ void LineNumberTextEdit::updateLineNumberAreaWidth() {
     doc->setDefaultTextOption(option);
 
     QTextBlockFormat blockFormat;
-    blockFormat.setLeftMargin(lineNumberAreaWidthValue); // Set the left margin here
+    blockFormat.setLeftMargin(lineNumberAreaWidthValue);
     QTextCursor cursor(doc);
-    cursor.setBlockFormat(blockFormat);
+
+    QTextBlock block = doc->begin();
+    while (block.isValid()) {
+        QTextCursor tempCursor(block);
+        if (!tempCursor.currentTable()) {
+            tempCursor.setBlockFormat(blockFormat);
+        }
+        block = block.next();
+    }
 }
 
 void LineNumberTextEdit::updateLineNumberArea(const QRect &rect, int dy) {
@@ -114,3 +146,19 @@ void LineNumberTextEdit::updateLineNumberArea(const QRect &rect, int dy) {
         updateLineNumberAreaWidth();
     lineNumberArea->update(0, rect.y(), lineNumberArea->width(), rect.height());
 }
+
+void LineNumberTextEdit::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton && event->modifiers() == Qt::ControlModifier)
+    {
+        QTextCursor cursor = cursorForPosition(event->pos());
+        QTextCharFormat charFormat = cursor.charFormat();
+        if (charFormat.isAnchor())
+        {
+            QUrl url(charFormat.anchorHref());
+            emit linkClicked(url);
+        }
+    }
+    QTextEdit::mousePressEvent(event);
+}
+
