@@ -5,6 +5,8 @@
 #include <QScrollBar>
 #include <QMouseEvent>
 #include <QUrl>
+#include <QInputDialog>
+#include <QMenu>
 
 
 LineNumberTextEdit::LineNumberTextEdit(QWidget *parent)
@@ -17,6 +19,9 @@ LineNumberTextEdit::LineNumberTextEdit(QWidget *parent)
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &LineNumberTextEdit::onScrollBarValueChanged);
 
     updateLineNumberAreaWidth();
+
+    previousText = this->toPlainText();
+    connect(this, &QTextEdit::textChanged, this, &LineNumberTextEdit::textChangedSlot);
 }
 
 void LineNumberTextEdit::cursorPositionChangedSlot() {
@@ -47,13 +52,24 @@ void LineNumberTextEdit::lineNumberAreaPaintEvent(QPaintEvent *event)
     int top = (int)cursorRect(cursor).top();
     int bottom = (int)cursorRect(cursor).bottom();
 
+    int commentIconWidth = fontMetrics().height();
+
     while (top <= event->rect().bottom()) {
         if (bottom >= event->rect().top()) {
             QTextTable *table = cursor.currentTable();
             if (!table && !cursor.block().text().startsWith(QStringLiteral(" "))) {
                 QString number = QString::number(blockNumber + 1)+" ";
                 painter.setPen(Qt::black);
-                painter.drawText(0, top, lineNumberArea->width(), fontMetrics().height(), Qt::AlignRight, number);
+                painter.drawText(commentIconWidth, top, lineNumberArea->width() - commentIconWidth, fontMetrics().height(), Qt::AlignRight, number);
+
+                if (hasComment(blockNumber)) {
+                    int commentIndicatorSize = fontMetrics().height() / 2;
+                    QRect commentIndicatorRect(commentIconWidth / 2 - commentIndicatorSize / 2, top + commentIndicatorSize / 2, commentIndicatorSize, commentIndicatorSize);
+                    painter.setBrush(Qt::black);
+                    painter.setPen(Qt::NoPen);
+                    painter.drawEllipse(commentIndicatorRect);
+                }
+
                 blockNumber++;
             } else {
                 QTextBlock nextBlock = cursor.block().next();
@@ -92,7 +108,8 @@ int LineNumberTextEdit::lineNumberAreaWidth()
     }
     digits += 1;
     int space = 3 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits;
-    return space;
+    int commentIconWidth = fontMetrics().height();
+    return space + commentIconWidth;
 }
 
 void LineNumberTextEdit::resizeEvent(QResizeEvent *event)
@@ -149,12 +166,10 @@ void LineNumberTextEdit::updateLineNumberArea(const QRect &rect, int dy) {
 
 void LineNumberTextEdit::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton && event->modifiers() == Qt::ControlModifier)
-    {
-        QTextCursor cursor = cursorForPosition(event->pos());
+    QTextCursor cursor = cursorForPosition(event->pos());
+    if (event->button() == Qt::LeftButton && event->modifiers() == Qt::ControlModifier) {
         QTextCharFormat charFormat = cursor.charFormat();
-        if (charFormat.isAnchor())
-        {
+        if (charFormat.isAnchor()) {
             QUrl url(charFormat.anchorHref());
             emit linkClicked(url);
         }
@@ -162,3 +177,113 @@ void LineNumberTextEdit::mousePressEvent(QMouseEvent *event)
     QTextEdit::mousePressEvent(event);
 }
 
+void LineNumberTextEdit::addComment(int lineNumber, const QString& comment)
+{
+    comments.insert(lineNumber, comment);
+    lineNumberArea->update();
+}
+
+void LineNumberTextEdit::removeComment(int lineNumber) {
+    comments.remove(lineNumber);
+    lineNumberArea->update();
+}
+
+bool LineNumberTextEdit::hasComment(int lineNumber) const
+{
+    return comments.contains(lineNumber);
+}
+
+void LineNumberTextEdit::showCommentDialog(int lineNumber)
+{
+    bool ok;
+    QString comment = QInputDialog::getMultiLineText(this, tr("Comment"), tr("Enter your comment:"), comments.value(lineNumber), &ok);
+    if (ok) {
+        comments.insert(lineNumber, comment);
+    }
+}
+
+void LineNumberTextEdit::contextMenuEvent(QContextMenuEvent *event)
+{
+    QPoint pos = event->pos();
+    QTextCursor cursor = cursorForPosition(pos);
+    int lineNumber = cursor.blockNumber();
+
+    QMenu menu(this);
+    const QIcon addCommentIcon = QIcon("./images/add-comment.png");
+    const QIcon editCommentIcon = QIcon("./images/edit-comment.png");
+    const QIcon showCommentIcon = QIcon("./images/show-comment.png");
+    const QIcon removeCommentIcon = QIcon("./images/remove-comment.png");
+    QAction *addAction = menu.addAction(addCommentIcon, tr("Add Comment"));
+    QAction *editAction = menu.addAction(editCommentIcon, tr("Edit Comment"));
+    QAction *showAction = menu.addAction(showCommentIcon, tr("Show Comment"));
+    QAction *removeAction = menu.addAction(removeCommentIcon, tr("Remove Comment"));
+
+    bool hasComment = comments.contains(lineNumber);
+    editAction->setEnabled(hasComment);
+    showAction->setEnabled(hasComment);
+    removeAction->setEnabled(hasComment);
+    addAction->setDisabled(hasComment);
+
+    QAction *selectedAction = menu.exec(event->globalPos());
+    if (selectedAction == addAction) {
+        QString comment = QInputDialog::getText(this, tr("Add Comment"), tr("Comment:"), QLineEdit::Normal);
+        if (!comment.isEmpty()) {
+            addComment(lineNumber, comment);
+        }
+        emit commentChanged();
+    } else if (selectedAction == editAction) {
+        QString initialComment = comments.value(lineNumber);
+        bool ok;
+        QString comment = QInputDialog::getText(this, tr("Edit Comment"), tr("Comment:"), QLineEdit::Normal, initialComment, &ok);
+        if (ok) {
+            if (comment.isEmpty()) {
+                removeComment(lineNumber);
+            } else {
+                addComment(lineNumber, comment);
+            }
+            emit commentChanged();
+        }
+    } else if (selectedAction == showAction) {
+        emit showComment(comments[lineNumber]);
+    } else if (selectedAction == removeAction) {
+        removeComment(lineNumber);
+        emit commentChanged();
+    }
+
+    lineNumberArea->update();
+}
+
+void LineNumberTextEdit::textChangedSlot()
+{
+    QString currentText = this->toPlainText();
+
+    int previousLineCount = previousText.count('\n');
+    int currentLineCount = currentText.count('\n');
+    int lineOffset = currentLineCount - previousLineCount;
+
+    QTextCursor cursor = this->textCursor();
+    int position = cursor.position();
+    int insertDeleteLine = this->document()->findBlock(position).blockNumber();
+
+    QMap<int, QString> updatedComments;
+    for (auto it = comments.begin(); it != comments.end(); ++it) {
+        int oldLineNumber = it.key();
+        QString comment = it.value();
+
+        if (oldLineNumber > insertDeleteLine) {
+            int newLineNumber = oldLineNumber + lineOffset;
+            updatedComments.insert(newLineNumber, comment);
+        } else {
+            updatedComments.insert(oldLineNumber, comment);
+        }
+    }
+
+    comments = updatedComments;
+    update();
+    previousText = currentText;
+}
+
+QString LineNumberTextEdit::getComment(int lineNumber) const
+{
+    return comments.value(lineNumber);
+}

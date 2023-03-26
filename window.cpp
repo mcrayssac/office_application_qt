@@ -28,7 +28,6 @@ MainWindow::MainWindow() : textEdit(new LineNumberTextEdit), lineNumberArea(new 
     connect(autoSaveTimer, &QTimer::timeout, this, &MainWindow::autoSave);
 
     // Word count
-
     wordCountLabel = new QLabel(this);
     charCountLabel = new QLabel(this);
     lineCountLabel = new QLabel(this);
@@ -67,6 +66,12 @@ MainWindow::MainWindow() : textEdit(new LineNumberTextEdit), lineNumberArea(new 
     highlightCurrentLine();
 
     connect(textEdit, &LineNumberTextEdit::linkClicked, this, &MainWindow::onAnchorClicked);
+
+    connect(textEdit, &LineNumberTextEdit::showComment, this, &MainWindow::showCommentDialog);
+    connect(textEdit, &LineNumberTextEdit::showComment, this, &MainWindow::showComment);
+    connect(textEdit, &LineNumberTextEdit::cursorPositionChanged, this, &MainWindow::updateCommentActions);
+    updateCommentActions();
+    connect(textEdit, &LineNumberTextEdit::commentChanged, this, &MainWindow::updateCommentActions);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
@@ -240,7 +245,6 @@ void MainWindow::commitData(QSessionManager &manager) {
 #endif
 
 bool MainWindow::saveFile(const QString &fileName)
-//! [44] //! [45]
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
@@ -874,6 +878,71 @@ void MainWindow::onAnchorClicked(const QUrl &link)
     QDesktopServices::openUrl(link);
 }
 
+/* Commentary */
+
+void MainWindow::showCommentDialog(const QString &comment) {
+    QMessageBox::information(this, tr("Comment"), comment);
+}
+
+void MainWindow::addComment()
+{
+    int lineNumber = textEdit->textCursor().blockNumber();
+    QString comment = QInputDialog::getText(this, tr("Add Comment"), tr("Comment:"), QLineEdit::Normal);
+    if (!comment.isEmpty()) {
+        textEdit->addComment(lineNumber, comment);
+    }
+    updateCommentActions();
+}
+
+void MainWindow::editComment()
+{
+    int lineNumber = textEdit->textCursor().blockNumber();
+    QString initialComment = textEdit->getComment(lineNumber);
+    bool ok;
+    QString comment = QInputDialog::getText(this, tr("Edit Comment"), tr("Comment:"), QLineEdit::Normal, initialComment, &ok);
+    if (ok) {
+        if (comment.isEmpty()) {
+            textEdit->removeComment(lineNumber);
+        } else {
+            textEdit->addComment(lineNumber, comment);
+        }
+    }
+    updateCommentActions();
+}
+
+void MainWindow::showCommentFromAction()
+{
+    int lineNumber = textEdit->textCursor().blockNumber();
+    QString comment = textEdit->getComment(lineNumber);
+    showComment(comment);
+}
+
+
+void MainWindow::showComment(const QString &comment)
+{
+    QMessageBox::information(this, tr("Show Comment"), comment);
+}
+
+void MainWindow::removeComment()
+{
+    int lineNumber = textEdit->textCursor().blockNumber();
+    textEdit->removeComment(lineNumber);
+    updateCommentActions();
+}
+
+void MainWindow::updateCommentActions()
+{
+    QTextCursor cursor = textEdit->textCursor();
+    int lineNumber = cursor.blockNumber();
+    bool hasComment = textEdit->hasComment(lineNumber);
+    addCommentAction->setDisabled(hasComment);
+    editCommentAction->setEnabled(hasComment);
+    showCommentAction->setEnabled(hasComment);
+    removeCommentAction->setEnabled(hasComment);
+}
+
+
+
 
 
 
@@ -1181,6 +1250,32 @@ void MainWindow::createActions() {
     connect(insertLinkAct, &QAction::triggered, this, &MainWindow::insertLink);
     insertMenu->addAction(insertLinkAct);
     insertToolBar->addAction(insertLinkAct);
+
+    insertMenu->addSeparator();
+
+    const QIcon addCommentIcon = QIcon("./images/add-comment.png");
+    addCommentAction = new QAction(addCommentIcon, tr("Add Comment"), this);
+    connect(addCommentAction, &QAction::triggered, this, &MainWindow::addComment);
+    insertMenu->addAction(addCommentAction);
+    insertToolBar->addAction(addCommentAction);
+
+    const QIcon editCommentIcon = QIcon("./images/edit-comment.png");
+    editCommentAction = new QAction(editCommentIcon, tr("Edit Comment"), this);
+    connect(editCommentAction, &QAction::triggered, this, &MainWindow::editComment);
+    insertMenu->addAction(editCommentAction);
+    insertToolBar->addAction(editCommentAction);
+
+    const QIcon showCommentIcon = QIcon("./images/show-comment.png");
+    showCommentAction = new QAction(showCommentIcon, tr("Show Comment"), this);
+    connect(showCommentAction, &QAction::triggered, this, &MainWindow::showCommentFromAction);
+    insertMenu->addAction(showCommentAction);
+    insertToolBar->addAction(showCommentAction);
+
+    const QIcon removeCommentIcon = QIcon("./images/remove-comment.png");
+    removeCommentAction = new QAction(removeCommentIcon, tr("Remove Comment"), this);
+    connect(removeCommentAction, &QAction::triggered, this, &MainWindow::removeComment);
+    insertMenu->addAction(removeCommentAction);
+    insertToolBar->addAction(removeCommentAction);
 
 
 

@@ -17,6 +17,7 @@ public:
     void undo();
     void redo();
     int lineNumberAreaWidth();
+    void updateCommentActions();
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -54,6 +55,12 @@ private slots:
     void createTable();
     void insertLink();
     void onAnchorClicked(const QUrl &link);
+    void showCommentDialog(const QString &comment);
+    void addComment();
+    void editComment();
+    void showCommentFromAction();
+    void showComment(const QString &comment);
+    void removeComment();
 
 #ifndef QT_NO_SESSIONMANAGER
     void commitData(QSessionManager &);
@@ -82,9 +89,7 @@ private:
 
     QString curFile;
 
-    // Auto save
     QTimer *autoSaveTimer;
-    // Word count
     QLabel *wordCountLabel;
     QLabel *charCountLabel;
     QLabel *lineCountLabel;
@@ -93,4 +98,9 @@ private:
     QWidget *lineNumberArea;
 
     int fontSize;
+
+    QAction *addCommentAction;
+    QAction *editCommentAction;
+    QAction *showCommentAction;
+    QAction *removeCommentAction;
 };
